@@ -48,16 +48,17 @@ export function Navbar() {
       <Dialog>
         <DialogTrigger asChild>
           <Button className="cursor-pointer bg-transparent block">
-            <PackagePlus className="size-6" />
+            <PackagePlus className="size-6 mr-6" />
           </Button>
         </DialogTrigger>
-        <DialogContent className="bg-[#0c0c0c] border-0 shadow-[0px_0px_25px_3px_rgba(66,_220,_219,_0.5)] text-white">
+        <DialogContent className="bg-[#0c0c0c] border-0 text-white overflow-hidden">
           <DialogHeader>
             <DialogTitle>Submit new resource</DialogTitle>
-            <DialogDescription>
+            <DialogDescription className="relative overflow-hidden z-[1]">
               <Modal />
             </DialogDescription>
           </DialogHeader>
+          <div className="bg-emerald-600 h-48 w-48 blur-[200px] absolute top-[50%]" />
         </DialogContent>
       </Dialog>
     </div>
@@ -81,9 +82,9 @@ function Modal() {
           name="title"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Name of website</FormLabel>
+              <FormLabel className="text-white/75">Name of website</FormLabel>
               <FormControl>
-                <Input className="border-white/25 border-1 focus-visible:ring-0 focus:!border-white/50 text-white" placeholder="Devhub" {...field} />
+                <Input className="border-white/25 border-2 focus-visible:ring-0 focus:!border-white/50 text-white" placeholder="Devhub" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -94,9 +95,9 @@ function Modal() {
           name="description"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Website description</FormLabel>
+              <FormLabel className="text-white/75">Website description</FormLabel>
               <FormControl>
-                <Input className="border-white/25 border-1 focus-visible:ring-0 focus:!border-white/50 text-white" placeholder="Website with all types of tools and assets for developers" {...field} />
+                <Input className="border-white/25 border-2 focus-visible:ring-0 focus:!border-white/50 text-white" placeholder="Website with all types of tools and assets for developers" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -107,9 +108,9 @@ function Modal() {
           name="url"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Website URL</FormLabel>
+              <FormLabel className="text-white/75">Website URL</FormLabel>
               <FormControl>
-                <Input className="border-white/25 border-1 focus-visible:ring-0 focus:!border-white/50 text-white" placeholder="https://devhub.xyz" {...field} />
+                <Input className="border-white/25 border-2 focus-visible:ring-0 focus:!border-white/50 text-white" placeholder="https://devhub.xyz" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -120,15 +121,15 @@ function Modal() {
           name="category"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Category of website</FormLabel>
+              <FormLabel className="text-white/75">Category of website</FormLabel>
               <FormControl>
-                <Input className="border-white/25 border-1 focus-visible:ring-0 focus:!border-white/50 text-white" placeholder="Tools" {...field} />
+                <Input className="border-white/25 border-2 focus-visible:ring-0 focus:!border-white/50 text-white" placeholder="Tools" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-        <Button type="submit">Submit</Button>
+        <Button className="cursor-pointer bg-black/25" type="submit">Submit</Button>
       </form>
     </Form>
   );
