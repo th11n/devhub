@@ -25,7 +25,7 @@ export default function PostGrid() {
 
   const [pageIndex, setPageIndex] = useState(0);
   const { data, error, isLoading } = useSWR(
-    `/api/posts?page=${pageIndex}${category && `&filterBy=${category}`}`,
+    `/api/posts?page=${pageIndex}${category ? `&filterBy=${category}` : ''}`,
     fetcher
   );
 
@@ -64,8 +64,8 @@ export default function PostGrid() {
   };
 
   return (
-    <div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-12">
+    <div className="min-h-[70vh] flex flex-col justify-between">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 z-[10]">
         {data.data.map((data: Post) => {
           return (
             <PostCard
@@ -79,7 +79,7 @@ export default function PostGrid() {
           );
         })}
       </div>
-      <Pagination className="text-white mt-12">
+      <Pagination className="text-white mt-12 mb-6">
         <PaginationContent>
           <PaginationItem onClick={() => {
             if (pageIndex === 0) {
