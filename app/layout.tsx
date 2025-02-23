@@ -21,12 +21,15 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${workSans.variable} antialiased w-full bg-[#0c0c0c]`}>
-        <div className="py-4 px-4 sm:px-30 fixed left-0 right-0 z-4">
+      <body className={`${workSans.variable} antialiased w-full bg-[#0c0c0c] relative min-h-screen`}>
+        <div className="py-4 px-4 sm:px-30 fixed left-0 right-0 z-[1000]">
           <Navbar />
         </div>
         {children}
         <Footer />
+        <div className="bg-emerald-600 h-48 w-48 blur-[200px] absolute top-[50%]" />
+        <div className="bg-emerald-300 h-48 w-48 blur-[200px] absolute top-[80%] right-0" />
+        <div className="bg-emerald-200 h-48 w-48 blur-[200px] absolute top-[10%] left-[50%] translate-x-[-50%]" />
       </body>
     </html>
   );
