@@ -27,9 +27,9 @@ export default function RootLayout({
         </div>
         {children}
         <Footer />
-        <div className="bg-emerald-600 h-48 w-48 blur-[200px] absolute top-[50%]" />
-        <div className="bg-emerald-300 h-48 w-48 blur-[200px] absolute top-[80%] right-0" />
-        <div className="bg-emerald-200 h-48 w-48 blur-[200px] absolute top-[10%] left-[50%] translate-x-[-50%]" />
+        <div className="bg-emerald-600 h-48 w-48 blur-fix absolute top-[50%]" />
+        <div className="bg-emerald-300 h-48 w-48 blur-fix absolute top-[80%] right-0" />
+        <div className="bg-emerald-200 h-48 w-48 blur-fix absolute top-[10%] left-[50%] translate-x-[-50%]" />
       </body>
     </html>
   );
