@@ -19,7 +19,7 @@ export default function PostCard({
 }: postProps) {
   return (
     <>
-      <Link href={url} className="border-neutral-200 bg-neutral-900/75 shadow-xs shadow-neutral-800 min-h-[320px] flex flex-col justify-between relative overflow-hidden rounded-lg group cursor-pointer">
+      <Link href={url} className="border-neutral-200 bg-neutral-900/75 shadow-xs shadow-neutral-800 min-h-[320px] flex flex-col justify-between relative overflow-hidden rounded-lg group cursor-pointer z-[1]">
         <div className="absolute inset-0">
           <Image
             src={image}
