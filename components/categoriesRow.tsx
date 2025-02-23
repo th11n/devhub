@@ -56,10 +56,10 @@ export function CategoriesRow() {
   }
 
   return (
-    <div className="w-full flex flex-row justify-center mb-12 gap-2 flex-wrap">
+    <div className="w-full flex flex-row justify-center mb-12 gap-2 flex-wrap z-[10]">
       {data.data.map((category: string) => {
         return (
-          <Badge onClick={() => {handleFilter(category)}} key={category} className={`cursor-pointer ${category === selectedCategory ? "shadow-[0px_0px_12px_0.5px_rgba(66,_220,_219,_0.5)]" : ""}`}>
+          <Badge onClick={() => {handleFilter(category)}} key={category} className={`z-[10] cursor-pointer ${category === selectedCategory ? "shadow-[0px_0px_30px_0px_rgba(0,_153,_102,_0.3)]" : ""}`}>
             {category}
           </Badge>
         );
