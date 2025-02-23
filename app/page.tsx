@@ -6,7 +6,7 @@ import { Suspense } from "react";
 
 export default function Home() {
   return (
-    <div className="bg-[#0c0c0c] w-full px-12 py-6 overflow-y-auto pt-40">
+    <div className="bg-[#0c0c0c] w-full px-12 py-6 overflow-y-auto pt-40 relative min-h-screen">
       <Suspense
         fallback={
           <div className="w-full flex flex-row justify-center mb-12 gap-2 overflow-x-auto">
