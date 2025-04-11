@@ -13,7 +13,6 @@ export const fetcher = async (url: string): Promise<any> => {
       info?: unknown;
       status?: number;
     };
-    // Attach extra info to the error object.
     error.info = await res.json();
     error.status = res.status;
     throw error;
