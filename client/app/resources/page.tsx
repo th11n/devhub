@@ -4,7 +4,7 @@ import { Spinner } from "@/components/spinner";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Suspense } from "react";
 
-export default function Home() {
+export default function Resources() {
   return (
     <div className="bg-[#0c0c0c] w-full px-12 py-6 overflow-y-auto pt-40 relative min-h-screen">
       <Suspense
