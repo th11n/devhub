@@ -18,12 +18,13 @@ export default function PostCard({
   url,
   category,
 }: PostProps) {
-  const displayTitle = title.length > 60 ? `${title.substring(0, 60)}...` : title;
+  const displayTitle =
+    title.length > 60 ? `${title.substring(0, 60)}...` : title;
   const displayDesc = desc.length > 100 ? `${desc.substring(0, 100)}...` : desc;
-  
+
   return (
-    <Link 
-      href={url} 
+    <Link
+      href={url}
       className="group relative flex flex-col justify-between overflow-hidden rounded-xl bg-neutral-900 shadow-lg shadow-neutral-800/30 transition-all duration-300 hover:shadow-xl hover:shadow-neutral-700/30 min-h-[320px]"
     >
       <div className="absolute inset-0 z-0">
@@ -35,6 +36,7 @@ export default function PostCard({
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           priority
         />
+        <div className="absolute inset-0 backdrop-blur-[2px]"></div>
         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-transparent opacity-85 transition-opacity duration-300 group-hover:opacity-75"></div>
       </div>
 
@@ -48,14 +50,17 @@ export default function PostCard({
         <h3 className="text-xl font-bold text-white group-hover:text-emerald-400 transition-colors duration-300 mb-1.5">
           {displayTitle}
         </h3>
-        
+
         <p className="text-sm text-neutral-300 font-light mb-3 leading-snug">
           {displayDesc}
         </p>
-        
+
         <div className="flex items-center text-xs text-neutral-400 group-hover:text-emerald-400 transition-colors duration-300">
           <span className="mr-1.5 font-medium">Read more</span>
-          <ArrowUpRight size={14} className="transform transition-transform duration-300 group-hover:translate-x-1 group-hover:-translate-y-1" />
+          <ArrowUpRight
+            size={14}
+            className="transform transition-transform duration-300 group-hover:translate-x-1 group-hover:-translate-y-1"
+          />
         </div>
       </div>
     </Link>
