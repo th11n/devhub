@@ -1,6 +1,6 @@
 import { LoginForm } from "@/components/loginForm";
 
-export default function Home() {
+export default function Dashboard() {
   const isAuthenticated = true;
   if (!isAuthenticated) {
     return <LoginForm />;
