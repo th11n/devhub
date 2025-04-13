@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import { Mona_Sans } from "next/font/google";
 import "./globals.css";
-import { Navbar } from "@/components/navbar";
-import { Footer } from "@/components/footer";
 import { GoogleAnalytics } from "@next/third-parties/google";
 
 const monaSans = Mona_Sans({
@@ -24,11 +22,7 @@ export default function RootLayout({
     <html lang="en">
       <meta name="apple-mobile-web-app-title" content="Devhub" />
       <body className={`${monaSans.variable} antialiased w-full bg-[#0c0c0c] relative min-h-screen`}>
-        <div className="py-4 px-4 sm:px-30 absolute left-0 right-0 z-[1000]">
-          <Navbar />
-        </div>
         {children}
-        <Footer />
         {process.env.NEXT_PUBLIC_GOOGLE_TAG_MANAGER_ID &&
         process.env.NODE_ENV === "production" && (
           <GoogleAnalytics
