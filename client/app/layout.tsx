@@ -21,6 +21,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <meta name="apple-mobile-web-app-title" content="Devhub" />
+      <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
       <body className={`${monaSans.variable} antialiased w-full bg-[#0c0c0c] relative min-h-screen`}>
         {children}
         {process.env.NEXT_PUBLIC_GOOGLE_TAG_MANAGER_ID &&
