@@ -19,6 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { toast } from "sonner";
 
 const createSchema = (categories: string[]) =>
   z.object({
@@ -57,10 +58,13 @@ export function ResourceForm() {
     const formData = new FormData();
     formData.append("url", data.url);
     formData.append("category", data.category);
-  
+
+    toast.success("Resource sent", {
+      description: "Your resource is currently under verification. Thank you!",
+    });
+
     await createResource(formData);
   };
-  
 
   return (
     <div className="w-full max-w-md mx-auto p-6 rounded-xl bg-neutral-900 shadow-lg shadow-neutral-800/30">
@@ -129,7 +133,10 @@ export function ResourceForm() {
           )}
         </div>
 
-        <div className="cf-turnstile h-12" data-sitekey="0x4AAAAAABLHkqkKQgFN8Ek9" />
+        <div
+          className="cf-turnstile h-12"
+          data-sitekey="0x4AAAAAABLHkqkKQgFN8Ek9"
+        />
 
         <button
           type="submit"

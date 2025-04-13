@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Mona_Sans } from "next/font/google";
 import "./globals.css";
 import { GoogleAnalytics } from "@next/third-parties/google";
+import { Toaster } from "@/components/ui/sonner";
 
 const monaSans = Mona_Sans({
   variable: "--font-mona-sans",
@@ -21,15 +22,22 @@ export default function RootLayout({
   return (
     <html lang="en">
       <meta name="apple-mobile-web-app-title" content="Devhub" />
-      <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
-      <body className={`${monaSans.variable} antialiased w-full bg-[#0c0c0c] relative min-h-screen`}>
+      <script
+        src="https://challenges.cloudflare.com/turnstile/v0/api.js"
+        async
+        defer
+      ></script>
+      <body
+        className={`${monaSans.variable} antialiased w-full bg-[#0c0c0c] min-h-screen`}
+      >
+        <Toaster richColors />
         {children}
         {process.env.NEXT_PUBLIC_GOOGLE_TAG_MANAGER_ID &&
-        process.env.NODE_ENV === "production" && (
-          <GoogleAnalytics
-            gaId={process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID!}
-          />
-        )}
+          process.env.NODE_ENV === "production" && (
+            <GoogleAnalytics
+              gaId={process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID!}
+            />
+          )}
       </body>
     </html>
   );
