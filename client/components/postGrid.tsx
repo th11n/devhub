@@ -1,10 +1,8 @@
 "use client";
 
-import { fetcher } from "@/lib/utils";
-import useSWR from "swr";
-import PostCard from "./postCard";
-import { Post } from "@/types/post";
-import { useCallback, useState, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
 import {
   Pagination,
   PaginationContent,
@@ -13,99 +11,128 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
-import { useRouter, useSearchParams } from "next/navigation";
-import Link from "next/link";
+import PostCard from "./postCard";
 import { Spinner } from "./spinner";
+import { Resource } from "@/lib/services/resource-service";
+import { getPosts } from "@/lib/actions/get-posts";
 
 export default function PostGrid() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
-  const category = searchParams.get("filterBy")
-
+  const category = searchParams.get("filterBy");
   const [pageIndex, setPageIndex] = useState(0);
-  const { data, error, isLoading } = useSWR(
-    `/api/posts?page=${pageIndex}${category ? `&filterBy=${category}` : ''}`,
-    fetcher
+  const [isLoading, setIsLoading] = useState(true);
+  const [data, setData] = useState<{ data: Resource[]; pageCount: number } | null>(
+    null
   );
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [error, setError] = useState<any>(null);
 
   useEffect(() => {
     const pageNumber = searchParams.get("page");
-    setPageIndex(pageNumber && !isNaN(Number(pageNumber)) ? Number(pageNumber) - 1 : 0);
+    setPageIndex(
+      pageNumber && !isNaN(Number(pageNumber)) ? Number(pageNumber) - 1 : 0
+    );
   }, [searchParams]);
+
+  useEffect(() => {
+    setIsLoading(true);
+    setError(null);
+
+    getPosts(pageIndex, category)
+      .then((res) => {
+        setData(res);
+      })
+      .catch((err) => setError(err))
+      .finally(() => setIsLoading(false));
+  }, [pageIndex, category]);
 
   const createQueryString = useCallback(
     (name: string, value: string) => {
       const params = new URLSearchParams(searchParams.toString());
       params.set(name, value);
-
       router.replace(`?${params.toString()}`, { scroll: false });
     },
     [searchParams, router]
   );
 
+  const changePage = (page: number) => {
+    createQueryString("page", (page + 1).toString());
+    setPageIndex(page);
+  };
+
   if (isLoading) {
-    return <div className="flex items-center justify-center w-full h-full min-h-[69vh]"><Spinner /></div>;
+    return (
+      <div className="flex items-center justify-center w-full h-full min-h-[69vh]">
+        <Spinner />
+      </div>
+    );
   }
 
   if (error) {
-    return <div className="text-red-500">{error.info.message}</div>;
-  }
-
-  if (pageIndex > data.pageCount - 1 || pageIndex < 0) {
     return (
-      <Link className="text-white" href="/">Back to home</Link>
-    )
+      <div className="text-red-500">
+        {error?.info?.message || "Something went wrong"}
+      </div>
+    );
   }
 
-  const changePage = (page: number) => {
-    createQueryString("page", (page + 1).toString());
-    setPageIndex(page)
-  };
+  if (!data || pageIndex > data.pageCount - 1 || pageIndex < 0) {
+    return (
+      <Link className="text-white" href="/">
+        Back to home
+      </Link>
+    );
+  }
 
   return (
     <div className="min-h-[70vh] flex flex-col justify-between">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 z-[10]">
-        {data.data.map((data: Post) => {
-          return (
-            <PostCard
-              key={data.id}
-              title={data.title}
-              desc={data.body}
-              image={data.image}
-              url={data.url}
-              category={data.category}
-            />
-          );
-        })}
+        {data.data.map((post) => (
+          <PostCard
+            key={post.id}
+            title={post.title}
+            desc={post.body}
+            image={post.image}
+            url={post.url}
+            category={post.category}
+          />
+        ))}
       </div>
       <Pagination className="text-white mt-12 mb-6">
         <PaginationContent>
-          <PaginationItem onClick={() => {
-            if (pageIndex === 0) {
-              return
-            }
-
-            changePage(pageIndex - 1)
-          }}>
-            <PaginationPrevious className={`${pageIndex === 0 && 'opacity-50 hover:bg-transparent hover:text-white !cursor-not-allowed'} cursor-pointer`} />
+          <PaginationItem
+            onClick={() => pageIndex > 0 && changePage(pageIndex - 1)}
+          >
+            <PaginationPrevious
+              className={`${
+                pageIndex === 0 &&
+                "opacity-50 hover:bg-transparent hover:text-white !cursor-not-allowed"
+              } cursor-pointer`}
+            />
           </PaginationItem>
-          {[...Array(data.pageCount).keys()].map((i) => {
-            return (
-              <PaginationItem key={i} onClick={() => changePage(i)}>
-                <PaginationLink className={`cursor-pointer ${pageIndex === i && "text-black"}`} isActive={pageIndex === i}>
-                  {i + 1}
-                </PaginationLink>
-              </PaginationItem>
-            );
-          })}
-          <PaginationItem onClick={() => {
-            if (pageIndex >= data.pageCount - 1) {
-              return
+          {[...Array(data.pageCount).keys()].map((i) => (
+            <PaginationItem key={i} onClick={() => changePage(i)}>
+              <PaginationLink
+                className={`cursor-pointer ${pageIndex === i && "text-black"}`}
+                isActive={pageIndex === i}
+              >
+                {i + 1}
+              </PaginationLink>
+            </PaginationItem>
+          ))}
+          <PaginationItem
+            onClick={() =>
+              pageIndex < data.pageCount - 1 && changePage(pageIndex + 1)
             }
-            changePage(pageIndex + 1)
-          }}>
-            <PaginationNext className={`${pageIndex >= data.pageCount - 1 && 'opacity-50 hover:bg-transparent hover:text-white !cursor-not-allowed'} cursor-pointer`} />
+          >
+            <PaginationNext
+              className={`${
+                pageIndex >= data.pageCount - 1 &&
+                "opacity-50 hover:bg-transparent hover:text-white !cursor-not-allowed"
+              } cursor-pointer`}
+            />
           </PaginationItem>
         </PaginationContent>
       </Pagination>

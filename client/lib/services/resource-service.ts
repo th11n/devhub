@@ -90,41 +90,48 @@ export class ResourceService {
     }
   }
 
-  async getPosts(pageParam: number, category: string, status: string) {
+  async getPosts(
+    pageParam: number,
+    category: string | null,
+    status: string
+  ): Promise<{ data: Resource[]; pageCount: number }> {
     const page = isNaN(Number(pageParam)) ? 0 : Number(pageParam);
     const offset = page * maxPerPage;
 
     try {
       let res;
       let pageCountRes;
+
       if (category) {
         res = await this.pool.query(
-          `SELECT * FROM posts WHERE status = $4 AND category = $3 ORDER BY id LIMIT $1 OFFSET $2`,
-          [maxPerPage, offset, category, status]
+          `SELECT * FROM posts WHERE status = $3 AND category = $2 ORDER BY id LIMIT $1 OFFSET $4`,
+          [maxPerPage, category, status, offset]
         );
         pageCountRes = await this.pool.query(
           "SELECT count(id) FROM posts WHERE status=$2 AND category = $1",
           [category, status]
         );
       } else {
-        console.log(page, offset, maxPerPage);
         res = await this.pool.query(
-          `SELECT * FROM posts WHERE status=$3 ORDER BY id LIMIT $1 OFFSET $2`,
-          [maxPerPage, offset, status]
+          `SELECT * FROM posts WHERE status=$2 ORDER BY id LIMIT $1 OFFSET $3`,
+          [maxPerPage, status, offset]
         );
         pageCountRes = await this.pool.query(
           "SELECT count(id) FROM posts WHERE status=$1",
           [status]
         );
       }
+
       const data = res.rows;
-      return Response.json({
+      const totalCount = parseInt(pageCountRes.rows[0].count, 10);
+
+      return {
         data,
-        pageCount: Math.ceil(pageCountRes.rows[0].count / maxPerPage),
-      });
+        pageCount: Math.ceil(totalCount / maxPerPage),
+      };
     } catch (error) {
-      console.error(error)
-      throw new Error('Something went wrong')
+      console.error("Database error:", error);
+      throw new Error("Failed to fetch posts");
     }
   }
 }
