@@ -8,6 +8,8 @@ import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowRight } from "lucide-react";
+import { createResource } from "@/lib/actions/create-resource";
+import { Controller } from "react-hook-form";
 
 import {
   Select,
@@ -28,8 +30,6 @@ const createSchema = (categories: string[]) =>
 
 export function ResourceForm() {
   const [categories, setCategories] = useState<string[]>([]);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
   const { data } = useSWR(`/api/categories`, fetcher);
 
   useEffect(() => {
@@ -41,8 +41,8 @@ export function ResourceForm() {
   const schema = createSchema(categories);
   const {
     register,
+    control,
     handleSubmit,
-    setValue,
     formState: { errors },
   } = useForm({
     resolver: zodResolver(schema),
@@ -53,23 +53,14 @@ export function ResourceForm() {
   });
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const onSubmit = async (values: any) => {
-    setIsSubmitting(true);
-
-    const res = await fetch("/api/createPost", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(values),
-    });
-
-    if (!res.ok) {
-      throw new Error("Request failed");
-    }
-
-    setIsSubmitting(false);
+  const onSubmit = async (data: any) => {
+    const formData = new FormData();
+    formData.append("url", data.url);
+    formData.append("category", data.category);
+  
+    await createResource(formData);
   };
+  
 
   return (
     <div className="w-full max-w-md mx-auto p-6 rounded-xl bg-neutral-900 shadow-lg shadow-neutral-800/30">
@@ -100,30 +91,37 @@ export function ResourceForm() {
           >
             Category
           </label>
-          <Select
-            onValueChange={(value) => setValue("category", value)}
-            defaultValue=""
-          >
-            <SelectTrigger
-              id="category"
-              className="w-full bg-neutral-800 border-neutral-700 text-white focus:ring-emerald-400 focus:border-emerald-400"
-            >
-              <SelectValue placeholder="Select category" />
-            </SelectTrigger>
-            <SelectContent className="bg-neutral-800 border-neutral-700 text-white">
-              <SelectGroup>
-                {categories.map((category) => (
-                  <SelectItem
-                    key={category}
-                    value={category}
-                    className="focus:bg-neutral-700 hover:bg-neutral-700 focus:text-emerald-400"
-                  >
-                    {category}
-                  </SelectItem>
-                ))}
-              </SelectGroup>
-            </SelectContent>
-          </Select>
+          <Controller
+            control={control}
+            name="category"
+            render={({ field }) => (
+              <Select
+                onValueChange={field.onChange}
+                value={field.value}
+                defaultValue={field.value}
+              >
+                <SelectTrigger
+                  id="category"
+                  className="w-full bg-neutral-800 border-neutral-700 text-white focus:ring-emerald-400 focus:border-emerald-400"
+                >
+                  <SelectValue placeholder="Select category" />
+                </SelectTrigger>
+                <SelectContent className="bg-neutral-800 border-neutral-700 text-white">
+                  <SelectGroup>
+                    {categories.map((category) => (
+                      <SelectItem
+                        key={category}
+                        value={category}
+                        className="focus:bg-neutral-700 hover:bg-neutral-700 focus:text-emerald-400"
+                      >
+                        {category}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            )}
+          />
           {errors.category && (
             <p className="text-sm text-red-400 mt-1">
               {errors.category.message}
@@ -131,9 +129,10 @@ export function ResourceForm() {
           )}
         </div>
 
+        <div className="cf-turnstile h-12" data-sitekey="0x4AAAAAABLHkqkKQgFN8Ek9" />
+
         <button
           type="submit"
-          disabled={isSubmitting}
           className="w-full flex items-center justify-center px-4 py-2.5 mt-2 bg-gradient-to-r from-emerald-600 to-emerald-500 text-white rounded-lg font-medium hover:from-emerald-500 hover:to-emerald-400 transition-all duration-300 disabled:opacity-70 group mt-12"
         >
           <span>Submit Resource</span>

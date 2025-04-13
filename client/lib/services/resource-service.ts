@@ -12,12 +12,7 @@ export interface Resource {
 }
 
 export type NewResource = Omit<Resource, "id" | "created_at">;
-
-export interface Metadata {
-  title: string;
-  description: string;
-  image: string | null;
-}
+const maxPerPage = 12;
 
 export class ResourceService {
   private pool: Pool;
@@ -37,36 +32,16 @@ export class ResourceService {
     }
   }
 
-  async forceCreateResource(data: NewResource): Promise<Resource> {
+  async createResource(
+    data: NewResource,
+    isForced: boolean = false
+  ): Promise<Resource> {
+    const status = isForced ? "published" : "awaiting";
+
     try {
       const result = await this.pool.query(
         "INSERT INTO posts (title, body, status, url, category, image) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
-        [
-          data.title,
-          data.body,
-          "published",
-          data.url,
-          data.category,
-          data.image,
-        ]
-      );
-
-      if (result.rows.length === 0) {
-        throw new Error("No results.");
-      }
-
-      return result.rows[0] as Resource;
-    } catch (error) {
-      console.error("Create resource error:", error);
-      throw new Error("Create resource failed");
-    }
-  }
-
-  async createResource(data: NewResource): Promise<Resource> {
-    try {
-      const result = await this.pool.query(
-        "INSERT INTO posts (title, body, status, url, category, image) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
-        [data.title, data.body, "awaiting", data.url, data.category, data.image]
+        [data.title, data.body, status, data.url, data.category, data.image]
       );
 
       if (result.rows.length === 0) {
@@ -112,6 +87,44 @@ export class ResourceService {
     } catch (err: any) {
       console.warn(`❌ Failed to fetch metadata via Microlink:`, err.message);
       return null;
+    }
+  }
+
+  async getPosts(pageParam: number, category: string, status: string) {
+    const page = isNaN(Number(pageParam)) ? 0 : Number(pageParam);
+    const offset = page * maxPerPage;
+
+    try {
+      let res;
+      let pageCountRes;
+      if (category) {
+        res = await this.pool.query(
+          `SELECT * FROM posts WHERE status = $4 AND category = $3 ORDER BY id LIMIT $1 OFFSET $2`,
+          [maxPerPage, offset, category, status]
+        );
+        pageCountRes = await this.pool.query(
+          "SELECT count(id) FROM posts WHERE status=$2 AND category = $1",
+          [category, status]
+        );
+      } else {
+        console.log(page, offset, maxPerPage);
+        res = await this.pool.query(
+          `SELECT * FROM posts WHERE status=$3 ORDER BY id LIMIT $1 OFFSET $2`,
+          [maxPerPage, offset, status]
+        );
+        pageCountRes = await this.pool.query(
+          "SELECT count(id) FROM posts WHERE status=$1",
+          [status]
+        );
+      }
+      const data = res.rows;
+      return Response.json({
+        data,
+        pageCount: Math.ceil(pageCountRes.rows[0].count / maxPerPage),
+      });
+    } catch (error) {
+      console.error(error)
+      throw new Error('Something went wrong')
     }
   }
 }
