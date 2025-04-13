@@ -31,9 +31,9 @@ export function Footer() {
       <div className="w-full mx-auto flex flex-col sm:flex-row sm:justify-between items-center gap-4">
         <div className="text-neutral-500 text-sm text-center inline-flex items-center gap-1">
           © {currentYear} by{" "}
-          <RollTextLink href="https://github.com/th11n" text="Dominik Krakowiak" />{" "}
-          and{" "}
-          <RollTextLink href="https://github.com/joachimhodana" text="Joachim Hodana" />.
+          <RollTextLink href="https://github.com/th11n" text="Dominik Krakowiak." />{" "}
+          Special thanks to{" "}
+          <RollTextLink href="https://github.com/joachimhodana" text="Joachim Hodana." />
           <span className="text-neutral-500"> All rights reserved.</span>
         </div>
         <div className="flex items-center gap-6 text-sm">
