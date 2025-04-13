@@ -20,6 +20,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
+import { Turnstile } from "next-turnstile";
 
 const createSchema = (categories: string[]) =>
   z.object({
@@ -30,6 +31,11 @@ const createSchema = (categories: string[]) =>
   });
 
 export function ResourceForm() {
+  const [turnstileStatus, setTurnstileStatus] = useState<
+    "success" | "error" | "expired" | "required"
+  >("required");
+  const [error, setError] = useState<string | null>(null);
+
   const [categories, setCategories] = useState<string[]>([]);
   const { data } = useSWR(`/api/categories`, fetcher);
 
@@ -53,11 +59,29 @@ export function ResourceForm() {
     },
   });
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const onSubmit = async (data: any) => {
+  const onSubmit = async (data: { url: string; category: string }) => {
+    setError(null);
     const formData = new FormData();
     formData.append("url", data.url);
     formData.append("category", data.category);
+
+    if (turnstileStatus !== "success") {
+      setError("Please verify you are not a robot");
+      return;
+    }
+
+    const token = (
+      document.querySelector(
+        'input[name="cf-turnstile-response"]'
+      ) as HTMLInputElement
+    )?.value;
+
+    if (!token) {
+      setError("Missing or invalid verification token");
+      return;
+    }
+
+    formData.append("token", token);
 
     toast.success("Resource sent", {
       description: "Your resource is currently under verification. Thank you!",
@@ -133,14 +157,39 @@ export function ResourceForm() {
           )}
         </div>
 
-        <div
-          className="cf-turnstile h-12"
-          data-sitekey="0x4AAAAAABLHkqkKQgFN8Ek9"
+        <Turnstile
+          siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!}
+          retry="auto"
+          refreshExpired="auto"
+          sandbox={process.env.NODE_ENV === "development"}
+          onError={() => {
+            setTurnstileStatus("error");
+            setError("Security check failed. Please try again.");
+          }}
+          onExpire={() => {
+            setTurnstileStatus("expired");
+            setError("Security check expired. Please verify again.");
+          }}
+          onLoad={() => {
+            setTurnstileStatus("required");
+            setError(null);
+          }}
+          onVerify={() => {
+            setTurnstileStatus("success");
+            setError(null);
+          }}
         />
-
+        {error && (
+          <div
+            className="flex items-center gap-2 text-red-500 text-sm mb-2"
+            aria-live="polite"
+          >
+            <span>{error}</span>
+          </div>
+        )}
         <button
           type="submit"
-          className="w-full flex items-center justify-center px-4 py-2.5 mt-2 bg-gradient-to-r from-emerald-600 to-emerald-500 text-white rounded-lg font-medium hover:from-emerald-500 hover:to-emerald-400 transition-all duration-300 disabled:opacity-70 group mt-12"
+          className="w-full flex items-center justify-center px-4 py-2.5 mt-2 bg-gradient-to-r from-emerald-600 to-emerald-500 text-white rounded-lg font-medium hover:from-emerald-500 hover:to-emerald-400 transition-all duration-300 disabled:opacity-70 group"
         >
           <span>Submit Resource</span>
           <ArrowRight
