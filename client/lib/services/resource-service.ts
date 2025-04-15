@@ -1,15 +1,5 @@
+import { Resource } from "@/types/resource";
 import { Pool } from "@neondatabase/serverless";
-
-export interface Resource {
-  id: string;
-  title: string;
-  body: string;
-  status: "published" | "awaiting";
-  url: string;
-  created_at?: string;
-  category: string;
-  image: string;
-}
 
 export type NewResource = Omit<Resource, "id" | "created_at">;
 const maxPerPage = 12;
@@ -90,7 +80,7 @@ export class ResourceService {
     }
   }
 
-  async getPosts(
+  async getResources(
     pageParam: number,
     category: string | null,
     status: string
@@ -133,5 +123,10 @@ export class ResourceService {
       console.error("Database error:", error);
       throw new Error("Failed to fetch posts");
     }
+  }
+
+  async getCategories() {
+    const res = await this.pool.query("SELECT DISTINCT category FROM posts");
+    return res.rows.map((row) => row.category);
   }
 }
