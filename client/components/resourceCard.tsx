@@ -1,23 +1,16 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Badge } from "./ui/badge";
+import { Badge } from "@/components/ui/badge";
 import { ArrowUpRight } from "lucide-react";
+import { ResourceCardProps } from "@/types/resource-card";
 
-interface PostProps {
-  title: string;
-  desc: string;
-  image: string;
-  url: string;
-  category: string;
-}
-
-export default function PostCard({
+export default function ResourceCard({
   title,
   desc,
   image,
   url,
   category,
-}: PostProps) {
+}: ResourceCardProps) {
   const displayTitle =
     title.length > 60 ? `${title.substring(0, 60)}...` : title;
   const displayDesc = desc.length > 100 ? `${desc.substring(0, 100)}...` : desc;

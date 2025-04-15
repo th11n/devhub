@@ -1,9 +1,7 @@
 "use client";
 
 import { Input } from "@/components/ui/input";
-import { fetcher } from "@/lib/utils";
 import { useEffect, useState } from "react";
-import useSWR from "swr";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -21,6 +19,7 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner";
 import { Turnstile } from "next-turnstile";
+import { getCategories } from "@/lib/actions/get-categories";
 
 const createSchema = (categories: string[]) =>
   z.object({
@@ -37,13 +36,16 @@ export function ResourceForm() {
   const [error, setError] = useState<string | null>(null);
 
   const [categories, setCategories] = useState<string[]>([]);
-  const { data } = useSWR(`/api/categories`, fetcher);
 
   useEffect(() => {
-    if (data) {
-      setCategories(data.data);
-    }
-  }, [data]);
+    setError(null);
+
+    getCategories()
+      .then((res) => {
+        setCategories(res);
+      })
+      .catch((err) => setError(err));
+  }, []);
 
   const schema = createSchema(categories);
   const {

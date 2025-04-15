@@ -11,12 +11,12 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
-import PostCard from "./postCard";
-import { Spinner } from "./spinner";
-import { Resource } from "@/lib/services/resource-service";
-import { getPosts } from "@/lib/actions/get-posts";
+import ResourceCard from "@/components/resourceCard";
+import { Spinner } from "@/components/spinner";
+import { getResources } from "@/lib/actions/get-resources";
+import { Resource } from "@/types/resource";
 
-export default function PostGrid() {
+export default function ResourceGrid() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -40,7 +40,7 @@ export default function PostGrid() {
     setIsLoading(true);
     setError(null);
 
-    getPosts(pageIndex, category)
+    getResources(pageIndex, category)
       .then((res) => {
         setData(res);
       })
@@ -89,14 +89,14 @@ export default function PostGrid() {
   return (
     <div className="min-h-[70vh] flex flex-col justify-between">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 z-[10]">
-        {data.data.map((post) => (
-          <PostCard
-            key={post.id}
-            title={post.title}
-            desc={post.body}
-            image={post.image}
-            url={post.url}
-            category={post.category}
+        {data.data.map((resource) => (
+          <ResourceCard
+            key={resource.id}
+            title={resource.title}
+            desc={resource.body}
+            image={resource.image}
+            url={resource.url}
+            category={resource.category}
           />
         ))}
       </div>
