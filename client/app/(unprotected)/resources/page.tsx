@@ -1,5 +1,5 @@
 import { CategoriesRow } from "@/components/categoriesRow";
-import PostGrid from "@/components/postGrid";
+import ResourceGrid from "@/components/resourceGrid";
 import { Spinner } from "@/components/spinner";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Suspense } from "react";
@@ -28,7 +28,7 @@ export default function Resources() {
           </div>
         }
       >
-        <PostGrid />
+        <ResourceGrid />
       </Suspense>
     </div>
   );
