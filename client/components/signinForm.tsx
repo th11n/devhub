@@ -38,9 +38,8 @@ export function SignInForm() {
       toast.success("Successfully signed in", {
         description: "Welcome back to your account!",
       });
-      
-      // Redirect user after successful login
-      // router.push("/dashboard");
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err) {
       setError("Invalid email or password. Please try again.");
     }
