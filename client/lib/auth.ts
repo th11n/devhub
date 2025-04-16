@@ -39,7 +39,7 @@ export async function verifyToken() {
 
   if (!accessToken) {
     console.warn("Access token not found in cookies");
-    return null;
+    return false;
   }
 
   try {
@@ -51,18 +51,19 @@ export async function verifyToken() {
     return payload;
   } catch (e) {
     console.warn("Token is invalid", e);
-    return null;
+    return false;
   }
 }
 
 export async function signIn(username: string, pass: string) {
-  const isVerified = await verifyCredentials(username, pass);
-
-  if (!isVerified) {
-    return;
+    const isVerified = await verifyCredentials(username, pass);
+  
+    if (!isVerified) {
+      throw new Error("Invalid credentials");
+    }
+  
+    const accessToken = await generateJWT();
+    const cookieStore = await cookies();
+    cookieStore.set("devhub.access_token", accessToken);
   }
-
-  const accessToken = await generateJWT();
-  const cookieStore = await cookies();
-  cookieStore.set("devhub.access_token", accessToken);
-}
+  
