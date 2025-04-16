@@ -1,8 +1,15 @@
 import { SignInForm } from "@/components/signinForm";
 import { Spinner } from "@/components/spinner";
+import { verifyToken } from "@/lib/auth";
+import { redirect } from "next/navigation";
 import { Suspense } from "react";
 
-export default function SignIn() {
+export default async function SignIn() {
+  const isAuthenticated = await verifyToken()
+
+  if (isAuthenticated) {
+    redirect('/dashboard')
+  }
   return (
     <div className="bg-[#0c0c0c] w-full px-12 py-6 overflow-y-auto relative min-h-[92.5vh] flex flex-col items-center justify-center">
       <Suspense
