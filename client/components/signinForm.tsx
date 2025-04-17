@@ -31,17 +31,19 @@ export function SignInForm() {
 
   const onSubmit = async (data: { username: string; password: string }) => {
     setError(null);
-    
+
     try {
       await signIn(data.username, data.password);
 
       toast.success("Successfully signed in", {
         description: "Welcome back to your account!",
       });
-
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err) {
-      setError("Invalid email or password. Please try again.");
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("Unknown error occurred");
+      }
     }
   };
 
@@ -51,7 +53,10 @@ export function SignInForm() {
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
         <div className="space-y-2">
-          <label htmlFor="username" className="text-sm font-medium text-neutral-300">
+          <label
+            htmlFor="username"
+            className="text-sm font-medium text-neutral-300"
+          >
             Username
           </label>
           <div className="relative">
@@ -63,12 +68,17 @@ export function SignInForm() {
             />
           </div>
           {errors.username && (
-            <p className="text-sm text-red-400 mt-1">{errors.username.message}</p>
+            <p className="text-sm text-red-400 mt-1">
+              {errors.username.message}
+            </p>
           )}
         </div>
 
         <div className="space-y-2">
-          <label htmlFor="password" className="text-sm font-medium text-neutral-300">
+          <label
+            htmlFor="password"
+            className="text-sm font-medium text-neutral-300"
+          >
             Password
           </label>
           <div className="relative">
@@ -81,7 +91,9 @@ export function SignInForm() {
             />
           </div>
           {errors.password && (
-            <p className="text-sm text-red-400 mt-1">{errors.password.message}</p>
+            <p className="text-sm text-red-400 mt-1">
+              {errors.password.message}
+            </p>
           )}
         </div>
 
