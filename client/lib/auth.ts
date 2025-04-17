@@ -27,7 +27,15 @@ async function verifyCredentials(username: string, pass: string) {
     throw new Error("Password hasn't been set");
   }
 
+  console.log(username)
+  console.log(pass)
+
+  console.log('---')
+
   const isPasswordValid = await compare(pass, valid_hashed_pass);
+
+  console.log(valid_username)
+  console.log(isPasswordValid)
 
   return username === valid_username && isPasswordValid;
 }
@@ -56,6 +64,9 @@ export async function verifyToken() {
 
 export async function signIn(username: string, pass: string) {
   const isVerified = await verifyCredentials(username, pass);
+
+  console.log(username)
+  console.log(pass)
 
   if (!isVerified) {
     throw new Error("Invalid credentials");
