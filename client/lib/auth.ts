@@ -11,7 +11,7 @@ const valid_username = process.env.WEB_USERNAME;
 const secretKey = createSecretKey(process.env.JWT_SECRET!, "utf-8");
 
 async function generateJWT(): Promise<string> {
-  const token = await new SignJWT({ id: "12345" })
+  const token = await new SignJWT({ role: 'admin' })
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt() // default to now()
     .setIssuer(process.env.JWT_ISSUER!)
