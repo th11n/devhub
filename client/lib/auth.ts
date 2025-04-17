@@ -24,8 +24,7 @@ async function generateJWT(): Promise<string> {
 
 async function verifyCredentials(username: string, pass: string) {
   if (!valid_hashed_pass) {
-    console.log("Password hasn't been set");
-    return;
+    throw new Error("Password hasn't been set")
   }
 
   const isPasswordValid = await compare(pass, valid_hashed_pass);
