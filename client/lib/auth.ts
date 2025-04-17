@@ -11,7 +11,7 @@ const valid_username = process.env.WEB_USERNAME;
 const secretKey = createSecretKey(process.env.JWT_SECRET!, "utf-8");
 
 async function generateJWT(): Promise<string> {
-  const token = await new SignJWT({ role: 'admin' })
+  const token = await new SignJWT({ role: "admin" })
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt() // default to now()
     .setIssuer(process.env.JWT_ISSUER!)
@@ -24,7 +24,7 @@ async function generateJWT(): Promise<string> {
 
 async function verifyCredentials(username: string, pass: string) {
   if (!valid_hashed_pass) {
-    throw new Error("Password hasn't been set")
+    throw new Error("Password hasn't been set");
   }
 
   const isPasswordValid = await compare(pass, valid_hashed_pass);
@@ -55,14 +55,18 @@ export async function verifyToken() {
 }
 
 export async function signIn(username: string, pass: string) {
-    const isVerified = await verifyCredentials(username, pass);
-  
-    if (!isVerified) {
-      throw new Error("Invalid credentials");
-    }
-  
-    const accessToken = await generateJWT();
-    const cookieStore = await cookies();
-    cookieStore.set("devhub.access_token", accessToken);
+  const isVerified = await verifyCredentials(username, pass);
+
+  if (!isVerified) {
+    throw new Error("Invalid credentials");
   }
-  
+
+  const accessToken = await generateJWT();
+  const cookieStore = await cookies();
+  cookieStore.set("devhub.access_token", accessToken, {
+    httpOnly: true,
+    secure: true,
+    sameSite: "strict",
+    maxAge: 60 * 60 * 24, // 1 day
+  });
+}
