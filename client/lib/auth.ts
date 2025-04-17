@@ -1,6 +1,6 @@
 "use server";
 
-import { compare } from "bcrypt-ts";
+import { compare, hash } from "bcrypt-ts";
 import { createSecretKey } from "crypto";
 import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
@@ -9,6 +9,7 @@ const valid_hashed_pass = process.env.HASHED_PASSWORD;
 const valid_username = process.env.WEB_USERNAME;
 
 const secretKey = createSecretKey(process.env.JWT_SECRET!, "utf-8");
+const salt = process.env.JWT_SALT!
 
 async function generateJWT(): Promise<string> {
   const token = await new SignJWT({ role: "admin" })
@@ -27,15 +28,12 @@ async function verifyCredentials(username: string, pass: string) {
     throw new Error("Password hasn't been set");
   }
 
-  console.log(username)
-  console.log(pass)
-
-  console.log('---')
-
   const isPasswordValid = await compare(pass, valid_hashed_pass);
+  const hashPass = await hash(pass, salt);
 
-  console.log(valid_username)
   console.log(isPasswordValid)
+  console.log(valid_hashed_pass)
+  console.log(hashPass)
 
   return username === valid_username && isPasswordValid;
 }
