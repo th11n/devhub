@@ -1,0 +1,41 @@
+{
+  "name": "web",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite dev",
+    "build": "vite build",
+    "preview": "vite preview",
+    "prepare": "svelte-kit sync || echo ''",
+    "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+    "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch"
+  },
+  "dependencies": {
+    "@devhub/api": "workspace:*",
+    "@devhub/auth": "workspace:*",
+    "@devhub/env": "workspace:*",
+    "@orpc/client": "catalog:",
+    "@orpc/server": "catalog:",
+    "@orpc/tanstack-query": "^1.12.2",
+    "@prisma/client": "catalog:",
+    "@tanstack/svelte-form": "^1.19.2",
+    "@tanstack/svelte-query": "^5.85.3",
+    "better-auth": "catalog:",
+    "dotenv": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@devhub/config": "workspace:*",
+    "@sveltejs/adapter-auto": "^6.1.0",
+    "@sveltejs/kit": "^2.31.1",
+    "@sveltejs/vite-plugin-svelte": "^6.1.2",
+    "@tailwindcss/vite": "^4.1.12",
+    "@tanstack/svelte-query-devtools": "^5.85.3",
+    "svelte": "^5.38.1",
+    "svelte-check": "^4.3.1",
+    "tailwindcss": "^4.1.12",
+    "typescript": "catalog:",
+    "vite": "^7.1.2"
+  }
+}

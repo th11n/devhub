@@ -1,0 +1,33 @@
+{
+  "name": "@devhub/db",
+  "type": "module",
+  "exports": {
+    ".": {
+      "default": "./src/index.ts"
+    },
+    "./*": {
+      "default": "./src/*.ts"
+    }
+  },
+  "scripts": {
+    "db:push": "prisma db push",
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate dev",
+    "db:studio": "prisma studio"
+  },
+  "dependencies": {
+    "@devhub/env": "workspace:*",
+    "@neondatabase/serverless": "^1.0.2",
+    "@prisma/adapter-neon": "^7.1.0",
+    "@prisma/client": "catalog:",
+    "dotenv": "catalog:",
+    "ws": "^8.18.3",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@devhub/config": "workspace:*",
+    "@types/ws": "^8.18.1",
+    "prisma": "^7.1.0",
+    "typescript": "catalog:"
+  }
+}
