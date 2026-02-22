@@ -1,0 +1,24 @@
+{
+    "name": "discord-devhub-bot",
+    "version": "1.0.0",
+    "main": "dist/index.js",
+    "scripts": {
+        "dev": "ts-node-dev --respawn src/index.ts"
+    },
+    "dependencies": {
+        "discord.js": "^14.18.0",
+        "dotenv": "^16.0.3",
+        "got": "^14.4.7",
+        "metascraper": "^5.46.11",
+        "metascraper-description": "^5.46.11",
+        "metascraper-image": "^5.46.11",
+        "metascraper-title": "^5.46.11",
+        "metascraper-url": "^5.46.11",
+        "node-fetch": "^3.3.2"
+    },
+    "devDependencies": {
+        "ts-node-dev": "^2.0.0",
+        "typescript": "^5.3.3"
+    },
+    "type": "module"
+}
