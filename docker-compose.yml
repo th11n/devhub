@@ -9,6 +9,8 @@ services:
       RABBITMQ_DEFAULT_PASS: dev
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
+    restart: unless-stopped
+
   redis:
     image: redis:7-alpine
     ports:
@@ -16,7 +18,91 @@ services:
     command: ["redis-server", "--appendonly", "yes"]
     volumes:
       - redis_data:/data
+    restart: unless-stopped
+
+  db:
+      image: postgres:15
+      ports:
+        - "5432:5432"
+      environment:
+        POSTGRES_USER: postgres
+        POSTGRES_PASSWORD: password
+        POSTGRES_DB: devhub
+      volumes:
+        - postgres_data:/var/lib/postgresql/data
+      restart: unless-stopped
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: bun run start
+    working_dir: /app/apps/web
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      # Pamiętaj, żeby REDIS_URL i DATABASE_URL były dobrze wskazywane w Twoich .env!
+      # np: REDIS_URL=redis://redis:6379
+      # DATABASE_URL=postgresql://postgres:password@db:5432/devhub
+    env_file:
+      - .env
+    depends_on:
+      - server
+    restart: unless-stopped
+
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: bun run dist/index.mjs
+    working_dir: /app/apps/server
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+    env_file:
+      - .env
+    depends_on:
+      - redis
+      - rabbitmq
+      - db
+    restart: unless-stopped
+
+  queue-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: bun run src/index.ts
+    working_dir: /app/apps/queue-worker
+    environment:
+      - NODE_ENV=production
+    env_file:
+      - .env
+    depends_on:
+      - redis
+      - rabbitmq
+      - db
+    restart: unless-stopped
+
+  bot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: bun run src/index.ts
+    working_dir: /app/apps/bot
+    environment:
+      - NODE_ENV=production
+    env_file:
+      - .env
+    depends_on:
+      - redis
+      - rabbitmq
+      - db
+    restart: unless-stopped
 
 volumes:
   rabbitmq_data:
   redis_data:
+  postgres_data:
