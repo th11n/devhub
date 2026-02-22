@@ -13,10 +13,15 @@
     "@devhub/auth": "workspace:*",
     "@devhub/db": "workspace:*",
     "@devhub/env": "workspace:*",
+    "@devhub/queue": "workspace:*",
+    "@devhub/redis": "workspace:*",
     "@elysiajs/cors": "^1.4.1",
+    "@sanity/client": "^7.15.0",
     "better-auth": "catalog:",
     "dotenv": "catalog:",
     "elysia": "^1.4.21",
+    "puppeteer": "^24.37.5",
+    "sharp": "^0.34.5",
     "zod": "catalog:"
   },
   "devDependencies": {

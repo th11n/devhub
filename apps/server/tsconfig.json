@@ -5,8 +5,14 @@
     "outDir": "dist",
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": [
+        "./src/*"
+      ]
     },
+    "lib": [
+      "ESNext",
+      "DOM"
+    ],
     "jsx": "react-jsx"
   }
 }
