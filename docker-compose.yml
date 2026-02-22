@@ -47,8 +47,7 @@ services:
         REDIS_URL: ${REDIS_URL}
         HOST: 0.0.0.0
         PORT: 3001
-    # Ustawiamy HOSTNAME i PORT inline w komendzie, bez bloku environment
-    command: sh -c "HOSTNAME=0.0.0.0 PORT=3001 bun run start"
+    command: sh -c "HOST=0.0.0.0 PORT=3001 bun run start"
     working_dir: /app/apps/web
     ports:
       - "3001:3001"
