@@ -38,6 +38,9 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      environment:
+        - HOST=0.0.0.0
+        - PORT=3001
       args:
         NEXT_PUBLIC_SERVER_URL: ${NEXT_PUBLIC_SERVER_URL}
         DATABASE_URL: ${DATABASE_URL}
