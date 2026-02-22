@@ -1,0 +1,12 @@
+{
+	"name": "@devhub/queue",
+	"version": "0.0.1",
+	"type": "module",
+	"main": "src/index.ts",
+	"dependencies": {
+		"amqplib": "^0.10.9"
+	},
+	"devDependencies": {
+		"@types/amqplib": "0.10.6"
+	}
+}
