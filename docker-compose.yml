@@ -32,12 +32,17 @@ services:
       - postgres_data:/var/lib/postgresql/data
     restart: unless-stopped
 
-  # 🔥 buildujemy obraz TYLKO RAZ
+  # buildujemy obraz raz (web)
   web:
     image: devhub:latest
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_SERVER_URL: ${NEXT_PUBLIC_SERVER_URL}
+        # jeśli dodasz kolejne ARG w Dockerfile, to dopisz je tu:
+        # NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL}
+        # NEXT_PUBLIC_SENTRY_DSN: ${NEXT_PUBLIC_SENTRY_DSN}
     command: bun run start
     working_dir: /app/apps/web
     ports:

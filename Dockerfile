@@ -1,5 +1,5 @@
 # -------- BASE --------
-FROM --platform=$TARGETPLATFORM oven/bun:1.3.9 AS base
+FROM oven/bun:1.3.9
 
 USER root
 
@@ -31,7 +31,16 @@ RUN mkdir -p /app && chown bun:bun /app
 
 USER bun
 
+# ---- Build-time args (Next build needs these) ----
+ARG NEXT_PUBLIC_SERVER_URL
+
+# Optionally add more NEXT_PUBLIC_* here as you discover them:
+# ARG NEXT_PUBLIC_APP_URL
+# ARG NEXT_PUBLIC_SENTRY_DSN
+
+# Make build-time args available as env during build (and runtime too)
 ENV \
+  NEXT_PUBLIC_SERVER_URL=$NEXT_PUBLIC_SERVER_URL \
   PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true \
   PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium \
   HUSKY=0 \
@@ -45,9 +54,8 @@ COPY --chown=bun:bun . .
 # Install from ROOT workspace
 RUN bun install --cwd /app
 
-# Build apps
+# Build apps (now env is available during build)
 RUN bun run --cwd /app/apps/web build
 RUN bun run --cwd /app/apps/server build
 
-# Default workdir
 WORKDIR /app
