@@ -40,6 +40,10 @@ services:
       dockerfile: Dockerfile
       args:
         NEXT_PUBLIC_SERVER_URL: ${NEXT_PUBLIC_SERVER_URL}
+        DATABASE_URL: ${DATABASE_URL}
+        BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET}
+        BETTER_AUTH_URL: ${BETTER_AUTH_URL}
+        CORS_ORIGIN: ${CORS_ORIGIN}
         # jeśli dodasz kolejne ARG w Dockerfile, to dopisz je tu:
         # NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL}
         # NEXT_PUBLIC_SENTRY_DSN: ${NEXT_PUBLIC_SENTRY_DSN}
