@@ -26,6 +26,9 @@ RUN set -eux; \
   ; \
   rm -rf /var/lib/apt/lists/*
 
+# Create app directory and give bun permissions
+RUN mkdir -p /app && chown bun:bun /app
+
 USER bun
 
 ENV \
@@ -37,7 +40,7 @@ ENV \
 WORKDIR /app
 
 # Copy full monorepo
-COPY . .
+COPY --chown=bun:bun . .
 
 # Install from ROOT workspace
 RUN bun install --cwd /app
