@@ -1,7 +1,9 @@
-FROM --platform=$TARGETPLATFORM oven/bun:latest
+# -------- BASE --------
+FROM --platform=$TARGETPLATFORM oven/bun:1.3.9 AS base
 
 USER root
 
+# Install Chromium (ARM64 compatible, Debian-based)
 RUN set -eux; \
   apt-get update; \
   apt-get install -y --no-install-recommends \
@@ -26,9 +28,23 @@ RUN set -eux; \
 
 USER bun
 
-ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true \
-    PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
+ENV \
+  PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true \
+  PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium \
+  HUSKY=0 \
+  NODE_ENV=production
 
 WORKDIR /app
+
+# Copy full monorepo
 COPY . .
-RUN bun install
+
+# Install from ROOT workspace
+RUN bun install --cwd /app
+
+# Build apps
+RUN bun run --cwd /app/apps/web build
+RUN bun run --cwd /app/apps/server build
+
+# Default workdir
+WORKDIR /app
