@@ -83,7 +83,7 @@ export class ResourceService {
   async getResources(
     pageParam: number,
     category: string | null,
-    status: string
+    status: string | null
   ): Promise<{ data: Resource[]; pageCount: number }> {
     const page = isNaN(Number(pageParam)) ? 0 : Number(pageParam);
     const offset = page * maxPerPage;
