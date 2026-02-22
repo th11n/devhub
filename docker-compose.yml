@@ -38,9 +38,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-      environment:
-        - HOST=0.0.0.0
-        - PORT=3001
       args:
         NEXT_PUBLIC_SERVER_URL: ${NEXT_PUBLIC_SERVER_URL}
         DATABASE_URL: ${DATABASE_URL}
@@ -48,6 +45,8 @@ services:
         BETTER_AUTH_URL: ${BETTER_AUTH_URL}
         CORS_ORIGIN: ${CORS_ORIGIN}
         REDIS_URL: ${REDIS_URL}
+        HOST: 0.0.0.0
+        PORT: 3001
         # jeśli dodasz kolejne ARG w Dockerfile, to dopisz je tu:
         # NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL}
         # NEXT_PUBLIC_SENTRY_DSN: ${NEXT_PUBLIC_SENTRY_DSN}
