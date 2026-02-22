@@ -1,7 +1,7 @@
 import * as React from "react"
 import {
-  ChevronLeftIcon,
-  ChevronRightIcon,
+  ArrowLeftIcon,
+  ArrowRightIcon,
   MoreHorizontalIcon,
 } from "lucide-react"
 
@@ -76,8 +76,8 @@ function PaginationPrevious({
       className={cn("gap-1 px-2.5 sm:pl-2.5", className)}
       {...props}
     >
-      <ChevronLeftIcon />
-      <span className="hidden sm:block">Previous</span>
+      <ArrowLeftIcon />
+      <span className="hidden sm:block"></span>
     </PaginationLink>
   )
 }
@@ -93,8 +93,8 @@ function PaginationNext({
       className={cn("gap-1 px-2.5 sm:pr-2.5", className)}
       {...props}
     >
-      <span className="hidden sm:block">Next</span>
-      <ChevronRightIcon />
+      <span className="hidden sm:block"></span>
+      <ArrowRightIcon />
     </PaginationLink>
   )
 }

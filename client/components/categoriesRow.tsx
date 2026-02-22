@@ -11,9 +11,7 @@ export function CategoriesRow() {
   const router = useRouter();
 
   const filter = searchParams.get("filterBy");
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(
-    filter ?? null
-  );
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(filter ?? null);
   const [data, setData] = useState<string[] | null>();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
@@ -21,71 +19,65 @@ export function CategoriesRow() {
   useEffect(() => {
     setIsLoading(true);
     setError(null);
-
     getCategories()
-      .then((res) => {
-        setData(res);
-      })
+      .then((res) => setData(res))
       .catch((err) => setError(err))
       .finally(() => setIsLoading(false));
   }, []);
 
   const handleFilter = (category: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("page", "1");
+
     if (category === selectedCategory) {
       setSelectedCategory(null);
-      const params = new URLSearchParams(searchParams.toString());
       params.delete("filterBy");
-      params.set("page", "1");
-      router.replace(`?${params.toString()}`, { scroll: false });
     } else {
       setSelectedCategory(category);
-      const params = new URLSearchParams(searchParams.toString());
-      params.set("page", "1");
       params.set("filterBy", category);
-      router.replace(`?${params.toString()}`, { scroll: false });
     }
+    router.replace(`?${params.toString()}`, { scroll: false });
   };
 
   if (isLoading) {
     return (
-      <div className="w-full flex flex-row justify-center mb-12 gap-3 overflow-x-auto px-4 py-2">
-        <Skeleton className="h-8 w-20 bg-white/5 rounded-full" />
-        <Skeleton className="h-8 w-28 bg-white/5 rounded-full" />
-        <Skeleton className="h-8 w-16 bg-white/5 rounded-full" />
-        <Skeleton className="h-8 w-24 bg-white/5 rounded-full" />
-        <Skeleton className="h-8 w-18 bg-white/5 rounded-full" />
+      <div className="flex flex-row justify-center mb-12 gap-3 overflow-x-auto px-4 py-2">
+        {[...Array(5)].map((_, i) => (
+          <Skeleton key={i} className="h-9 w-24 bg-white/5 rounded-full" />
+        ))}
       </div>
     );
   }
 
-  if (error) {
-    return <div className="text-red-500">{error.message}</div>; // 👈 błąd z obiektu Error
-  }
-
+  if (error) return <div className="text-red-500 text-center mb-12">{error.message}</div>;
   if (!data) return null;
 
   return (
-    <div className="w-full flex flex-row justify-center mb-12 gap-3 flex-wrap z-10 px-4 py-2">
+    <div className="w-full flex flex-row justify-center mb-16 gap-3 flex-wrap z-10 px-4">
       {data.map((category: string) => {
         const isSelected = category === selectedCategory;
         return (
-          <Badge
-            onClick={() => {
-              handleFilter(category);
-            }}
+          <button
             key={category}
-            className={`
-              z-10 cursor-pointer px-4 py-1.5 text-sm font-medium transition-all duration-300 ease-in-out
-              ${
-                isSelected
-                  ? "bg-emerald-600/90 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-900/30"
-                  : "bg-neutral-800/80 hover:bg-neutral-700 text-neutral-300 hover:text-white backdrop-blur-sm"
-              }
-              rounded-full border-0 hover:scale-105`}
-            variant={isSelected ? "default" : "outline"}
+            onClick={() => handleFilter(category)}
+            className="group relative"
           >
-            {category}
-          </Badge>
+            {/* --- BACKGROUND & SHADOW EFFECT --- */}
+            <Badge
+              className={`
+                relative z-10 px-5 py-2 text-[13px] font-medium tracking-wide
+                transition-all duration-300 ease-out rounded-full border
+                backdrop-blur-md cursor-pointer
+                
+                ${isSelected
+                  ? "bg-emerald-500/15 border-emerald-500/50 text-emerald-300 shadow-[0_0_20px_-5px_rgba(16,185,129,0.4)]"
+                  : "bg-white/5 border-white/10 text-neutral-400 hover:text-white hover:bg-white/10 hover:border-white/20"
+                }
+              `}
+            >
+              {category}
+            </Badge>
+          </button>
         );
       })}
     </div>

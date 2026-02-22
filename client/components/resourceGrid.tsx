@@ -87,7 +87,7 @@ export default function ResourceGrid() {
   }
 
   return (
-    <div className="min-h-[70vh] flex flex-col justify-between">
+    <div className="min-h-[70vh] flex flex-col">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 z-[10]">
         {data.data.map((resource) => (
           <ResourceCard
@@ -106,32 +106,20 @@ export default function ResourceGrid() {
             onClick={() => pageIndex > 0 && changePage(pageIndex - 1)}
           >
             <PaginationPrevious
-              className={`${
-                pageIndex === 0 &&
+              className={`${pageIndex === 0 &&
                 "opacity-50 hover:bg-transparent hover:text-white !cursor-not-allowed"
-              } cursor-pointer`}
+                } cursor-pointer`}
             />
           </PaginationItem>
-          {[...Array(data.pageCount).keys()].map((i) => (
-            <PaginationItem key={i} onClick={() => changePage(i)}>
-              <PaginationLink
-                className={`cursor-pointer ${pageIndex === i && "text-black"}`}
-                isActive={pageIndex === i}
-              >
-                {i + 1}
-              </PaginationLink>
-            </PaginationItem>
-          ))}
           <PaginationItem
             onClick={() =>
               pageIndex < data.pageCount - 1 && changePage(pageIndex + 1)
             }
           >
             <PaginationNext
-              className={`${
-                pageIndex >= data.pageCount - 1 &&
+              className={`${pageIndex >= data.pageCount - 1 &&
                 "opacity-50 hover:bg-transparent hover:text-white !cursor-not-allowed"
-              } cursor-pointer`}
+                } cursor-pointer`}
             />
           </PaginationItem>
         </PaginationContent>
