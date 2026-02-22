@@ -47,10 +47,8 @@ services:
         REDIS_URL: ${REDIS_URL}
         HOST: 0.0.0.0
         PORT: 3001
-        # jeśli dodasz kolejne ARG w Dockerfile, to dopisz je tu:
-        # NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL}
-        # NEXT_PUBLIC_SENTRY_DSN: ${NEXT_PUBLIC_SENTRY_DSN}
-    command: bun run start
+    # Ustawiamy HOSTNAME i PORT inline w komendzie, bez bloku environment
+    command: sh -c "HOSTNAME=0.0.0.0 PORT=3001 bun run start"
     working_dir: /app/apps/web
     ports:
       - "3001:3001"
