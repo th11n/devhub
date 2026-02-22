@@ -1,41 +1,43 @@
 import type { Metadata } from "next";
-
-import { Geist, Geist_Mono } from "next/font/google";
-
-import "../index.css";
-import Header from "@/components/header";
+import { Geist_Mono, Space_Grotesk } from "next/font/google";
+import "@devhub/ui/globals.css";
+import Header from "@/components/navbar";
 import Providers from "@/components/providers";
+import { fetchWithCache } from "@/lib/cache";
+import { CATEGORIES_QUERY } from "@/lib/sanity-queries";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
+const grotesk = Space_Grotesk({
+	variable: "--font-grotesk",
+	subsets: ["latin"],
 });
 
 const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+	variable: "--font-geist-mono",
+	subsets: ["latin"],
 });
 
 export const metadata: Metadata = {
-  title: "devhub",
-  description: "devhub",
+	title: "devhub",
+	description: "devhub",
 };
 
-export default function RootLayout({
-  children,
+export default async function RootLayout({
+	children,
 }: Readonly<{
-  children: React.ReactNode;
+	children: React.ReactNode;
 }>) {
-  return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <Providers>
-          <div className="grid grid-rows-[auto_1fr] h-svh">
-            <Header />
-            {children}
-          </div>
-        </Providers>
-      </body>
-    </html>
-  );
+	const categories = await fetchWithCache<any[]>(CATEGORIES_QUERY, {});
+
+	return (
+		<html lang="en" suppressHydrationWarning>
+			<body className={`${grotesk.variable} ${geistMono.variable} antialiased`}>
+				<Providers>
+					<div className="grid h-svh grid-rows-[auto_1fr]">
+						<Header categories={categories} />
+						{children}
+					</div>
+				</Providers>
+			</body>
+		</html>
+	);
 }
