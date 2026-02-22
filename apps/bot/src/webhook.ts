@@ -63,8 +63,8 @@ export function startWebhookServer() {
 		}
 	});
 
-	app.listen(process.env.PORT, () => {
+	app.listen(process.env.WEBHOOK_PORT, () => {
 		// eslint-disable-next-line no-console
-		console.log(`Webhook server listening on :${process.env.PORT}`);
+		console.log(`Webhook server listening on :${process.env.WEBHOOK_PORT}`);
 	});
 }
