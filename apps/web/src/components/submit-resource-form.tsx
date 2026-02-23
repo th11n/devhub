@@ -41,7 +41,7 @@ export default function SubmitResourceForm({
 			categoryId: categories[0]?._id || "",
 		},
 		onSubmit: async ({ value }) => {
-			const promise = fetch("http://localhost:3000/api/submit", {
+			const promise = fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/submit`, {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
