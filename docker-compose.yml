@@ -21,7 +21,7 @@ services:
     restart: unless-stopped
 
   db:
-    image: postgres
+    image: postgres:18
     container_name: devhub-postgres
     environment:
       POSTGRES_DB: devhub
@@ -30,7 +30,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - devhub_postgres_data:/var/lib/postgresql/data
+      - devhub_postgres_data:/var/lib/postgresql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 10s
