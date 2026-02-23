@@ -15,4 +15,6 @@ export default defineConfig({
 	schema: {
 		types: schemaTypes,
 	},
+	host: "0.0.0.0",
+	allowedHosts: true,
 });
