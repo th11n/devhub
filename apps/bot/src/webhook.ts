@@ -13,6 +13,8 @@ type SanityWebhookPayload = {
 	_createdAt?: string;
 };
 
+const port = Number(process.env.WEBHOOK_PORT ?? 3000);
+
 export function startWebhookServer() {
 	const app = express();
 
@@ -63,8 +65,7 @@ export function startWebhookServer() {
 		}
 	});
 
-	app.listen(process.env.WEBHOOK_PORT, () => {
-		// eslint-disable-next-line no-console
-		console.log(`Webhook server listening on :${process.env.WEBHOOK_PORT}`);
+	app.listen(port, "0.0.0.0", () => {
+		console.log(`Webhook server listening on :${port}`);
 	});
 }
