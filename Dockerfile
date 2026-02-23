@@ -67,5 +67,6 @@ RUN bun install --cwd /app
 # Build apps (now env is available during build)
 RUN bun run --cwd /app/apps/web build
 RUN bun run --cwd /app/apps/server build
+RUN bun run --cwd /app/apps/cms build
 
 WORKDIR /app

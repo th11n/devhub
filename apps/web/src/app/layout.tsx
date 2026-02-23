@@ -17,8 +17,72 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-	title: "devhub",
-	description: "devhub",
+	metadataBase: new URL("https://devhub.dominikkrakowiak.com"),
+	title: {
+		default: "Devhub — High Quality Curated Resources for Developers",
+		template: "%s | Devhub",
+	},
+	description:
+		"Devhub is a high-quality curated collection of developer resources. Discover the best tools, UI inspirations, animations, components, backend utilities and more — all in one place.",
+	keywords: [
+		"developer resources",
+		"curated tools",
+		"frontend resources",
+		"backend tools",
+		"UI inspiration",
+		"web development tools",
+		"animations",
+		"dev tools directory",
+		"programming resources",
+		"software development",
+	],
+	authors: [{ name: "th1n" }],
+	creator: "th1n",
+	publisher: "th1n",
+	applicationName: "Devhub",
+	category: "technology",
+
+	openGraph: {
+		title: "Devhub — High Quality Curated Resources",
+		description:
+			"Discover high-quality curated resources for developers. Tools, UI inspirations, animations, backend utilities and more.",
+		url: "https://devhub.dominikkrakowiak.com",
+		siteName: "Devhub",
+		locale: "en_US",
+		type: "website",
+		images: [
+			{
+				url: "/og-image.png",
+				width: 1200,
+				height: 630,
+				alt: "Devhub — High Quality Curated Resources",
+			},
+		],
+	},
+
+	twitter: {
+		card: "summary_large_image",
+		title: "Devhub — High Quality Curated Resources",
+		description:
+			"A curated collection of the best developer resources — tools, UI, animations and more.",
+		images: ["/og-image.png"],
+	},
+
+	robots: {
+		index: true,
+		follow: true,
+		googleBot: {
+			index: true,
+			follow: true,
+			"max-video-preview": -1,
+			"max-image-preview": "large",
+			"max-snippet": -1,
+		},
+	},
+
+	alternates: {
+		canonical: "https://devhub.dominikkrakowiak.com",
+	},
 };
 
 export default async function RootLayout({
