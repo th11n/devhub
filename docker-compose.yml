@@ -9,6 +9,11 @@ services:
       RABBITMQ_DEFAULT_PASS: dev
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
     restart: unless-stopped
 
   redis:
@@ -18,6 +23,11 @@ services:
     command: ["redis-server", "--appendonly", "yes"]
     volumes:
       - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
     restart: unless-stopped
 
   db:
@@ -72,9 +82,12 @@ services:
     env_file:
       - .env
     depends_on:
-      - redis
-      - rabbitmq
-      - db
+      - redis:
+        condition: service_healthy
+      - rabbitmq:
+        condition: service_healthy
+      - db:
+    condition: service_healthy
     restart: unless-stopped
 
   queue-worker:
