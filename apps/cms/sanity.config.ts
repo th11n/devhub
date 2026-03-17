@@ -15,6 +15,9 @@ export default defineConfig({
 	schema: {
 		types: schemaTypes,
 	},
+	server: {
+		allowedHosts: ['.dominikkrakowiak.com'],
+	},
 	host: "0.0.0.0",
 	allowedHosts: ['cms.devhub.dominikkrakowiak.com'],
 	vite: {
