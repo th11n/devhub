@@ -1,78 +1,107 @@
-# devhub
+# DevHub
 
-This project was created with [Better-T-Stack](https://github.com/AmanVarshney01/create-better-t-stack), a modern TypeScript stack that combines Next.js, Elysia, and more.
+DevHub is a modern, full-stack monorepo built with [Turborepo](https://turbo.build/) and [Bun](https://bun.sh/). The stack combines a Next.js web application, an Elysia API backend, a Sanity CMS, a custom Discord bot, and a background queue worker for processing heavy tasks.
 
-## Features
+## 🚀 Tech Stack
 
-- **TypeScript** - For type safety and improved developer experience
-- **Next.js** - Full-stack React framework
-- **TailwindCSS** - Utility-first CSS for rapid UI development
-- **shadcn/ui** - Reusable UI components
-- **Elysia** - Type-safe, high-performance framework
-- **Bun** - Runtime environment
-- **Drizzle** - TypeScript-first ORM
-- **PostgreSQL** - Database engine
-- **Authentication** - Better-Auth
-- **Biome** - Linting and formatting
-- **Husky** - Git hooks for code quality
-- **Turborepo** - Optimized monorepo build system
+- **Monorepo / Tooling**: Turborepo, Bun, Biome, Husky, lint-staged
+- **Web App (`apps/web`)**: Next.js 16, React 19, Tailwind CSS v4, shadcn/ui
+- **API Server (`apps/server`)**: Elysia, TypeScript
+- **CMS (`apps/cms`)**: Sanity Studio
+- **Bot (`apps/bot`)**: Discord.js custom bot
+- **Background Worker (`apps/queue-worker`)**: RabbitMQ consumer processing jobs with Puppeteer & Sharp
+- **Database / ORM**: PostgreSQL, Drizzle ORM (`@devhub/db`)
+- **Authentication**: Better-Auth (`@devhub/auth`)
+- **Caching & Queues**: Redis (`@devhub/redis`), RabbitMQ (`@devhub/queue`)
 
-## Getting Started
+## 📂 Project Structure
 
-First, install the dependencies:
+```text
+devhub/
+├── apps/
+│   ├── bot/            # Discord bot application
+│   ├── cms/            # Sanity Studio CMS
+│   ├── queue-worker/   # Background job processor
+│   ├── server/         # Backend API (Elysia)
+│   └── web/            # Frontend application (Next.js)
+│
+├── packages/
+│   ├── auth/           # Better-Auth configuration & logic
+│   ├── config/         # Shared configuration (TypeScript, Biome, Tailwind)
+│   ├── db/             # Database schema & Drizzle configuration
+│   ├── env/            # Environment variable validation using Zod
+│   ├── queue/          # RabbitMQ integration logic
+│   ├── redis/          # Redis client and helpers
+│   └── ui/             # Shared UI components (shadcn/ui)
+```
+
+## 🛠️ Getting Started
+
+### Prerequisites
+
+- [Bun](https://bun.sh/) (v1.3+ recommended)
+- [Docker & Docker Compose](https://docs.docker.com/compose/) (for infrastructure)
+
+### Installation
+
+1. Clone the repository and install dependencies:
 
 ```bash
 bun install
 ```
 
-## Database Setup
+### Environment Configuration
 
-This project uses PostgreSQL with Drizzle ORM.
+Ensure you have your environment variables set up. Look for `.env.example` files in the respective applications and packages, or create your own `.env` files based on the project requirements.
 
-1. Make sure you have a PostgreSQL database set up.
-2. Update your `apps/server/.env` file with your PostgreSQL connection details.
+### Infrastructure & Database Setup
 
-3. Apply the schema to your database:
+The project includes a `docker-compose.yml` that provides PostgreSQL, Redis, and RabbitMQ. 
+
+Start the infrastructure:
+
+```bash
+bun run dev:infra
+```
+
+*Note: Running `bun run dev:infra` starts the services defined in `docker-compose.yml`.*
+
+Apply the database schema using Drizzle ORM:
 
 ```bash
 bun run db:push
 ```
 
-Then, run the development server:
+*(Optional) Seed or generate additional database logic:*
+```bash
+bun run db:generate
+bun run db:migrate
+```
+
+### Running the Development Servers
+
+Start all applications in development mode:
 
 ```bash
 bun run dev
 ```
 
-Open [http://localhost:3001](http://localhost:3001) in your browser to see the web application.
-The API is running at [http://localhost:3000](http://localhost:3000).
+Alternatively, you can start individual applications:
 
-## Git Hooks and Formatting
-
-- Initialize hooks: `bun run prepare`
-- Format and lint fix: `bun run check`
-
-## Project Structure
-
-```
-devhub/
-├── apps/
-│   ├── web/         # Frontend application (Next.js)
-│   └── server/      # Backend API (Elysia)
-├── packages/
-│   ├── auth/        # Authentication configuration & logic
-│   └── db/          # Database schema & queries
+```bash
+bun run dev:web      # Start only the Next.js web application (Port: 3001)
+bun run dev:server   # Start only the Elysia backend API (Port: 3000)
 ```
 
-## Available Scripts
+Other services run on default ports:
+- CMS is available via `cd apps/cms && bun run dev` (Port: 3333)
+- Services APIs: Redis (6379), RabbitMQ (5672/15672), PostgreSQL (5432)
 
-- `bun run dev`: Start all applications in development mode
-- `bun run build`: Build all applications
-- `bun run dev:web`: Start only the web application
-- `bun run dev:server`: Start only the server
-- `bun run check-types`: Check TypeScript types across all apps
-- `bun run db:push`: Push schema changes to database
-- `bun run db:generate`: Generate database client/types
-- `bun run db:migrate`: Run database migrations
-- `bun run db:studio`: Open database studio UI
-- `bun run check`: Run Biome formatting and linting
+## 🗄️ Database Management
+
+We use Drizzle ORM for strong typed database queries. Some handy commands:
+
+- `bun run db:studio` - Open Drizzle Studio UI to inspect and manage your database.
+- `bun run db:push` - Sync your schema with the database directly.
+- `bun run db:generate` - Generate migrations based on schema changes.
+- `bun run db:migrate` - Apply pending migrations to the database.
