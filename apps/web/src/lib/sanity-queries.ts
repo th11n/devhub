@@ -8,6 +8,11 @@ export const RESOURCES_QUERY = `*[
   && defined(slug.current)
 ]|order(publishedAt desc)[0...12]{_id, name, "slug": slug.current, description, link, previewImage, categories[]->{name}, logo, publishedAt}`;
 
+export const PAGINATED_RESOURCES_QUERY = `*[
+  _type == "resource"
+  && defined(slug.current)
+]|order(publishedAt desc)[$start...$end]{_id, name, "slug": slug.current, description, link, previewImage, categories[]->{name}, logo, publishedAt}`;
+
 export const USER_LIKES_QUERY = `*[
   _type == "likes"
   && userId == $userId
