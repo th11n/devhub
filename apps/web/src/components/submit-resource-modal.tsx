@@ -32,9 +32,19 @@ export default function SubmitResourceModal({
 					<Button
 						variant="default"
 						size="sm"
-						className="hidden px-6 sm:inline-flex"
+						className="inline-flex px-3 sm:px-6 sm:w-24"
+						aria-label="Submit Resource"
 					>
-						Submit
+						<span className="hidden sm:inline">Submit</span>
+						<svg
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							strokeWidth="2"
+							className="h-4 w-4 sm:hidden"
+						>
+							<path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+						</svg>
 					</Button>
 				)}
 			</DialogTrigger>
