@@ -22,7 +22,7 @@ export default async function IndexPage() {
 					<CategoriesRow />
 				</Suspense>
 			</div>
-			<div className="container mx-auto px-4 py-24">
+			<div className="container mx-auto">
 				<Suspense fallback={<ResourceGridSkeleton />}>
 					<ResourcesGrid />
 				</Suspense>
