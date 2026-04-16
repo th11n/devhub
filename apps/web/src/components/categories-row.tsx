@@ -10,7 +10,7 @@ export default async function CategoriesRow() {
 	);
 
 	return (
-		<div className="mt-12 inline-flex flex-wrap gap-4">
+		<div className="mt-12 flex flex-wrap items-center justify-center gap-4">
 			{categories.map((category) => (
 				<Link
 					className="rounded-xs bg-accent px-2.5 py-1 transition-colors hover:bg-accent/80"
