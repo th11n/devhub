@@ -1,7 +1,7 @@
 import { getSession } from "@/lib/auth";
 import { fetchWithCache } from "@/lib/cache";
 import { RESOURCES_QUERY, USER_LIKES_QUERY } from "@/lib/sanity-queries";
-import ResourceCard from "./resource-card";
+import InfiniteResourcesGrid from "./infinite-resources-grid";
 
 export default async function ResourcesGrid() {
 	const [resources, session] = await Promise.all([
@@ -17,17 +17,14 @@ export default async function ResourcesGrid() {
 
 	const likedResourceIds = new Set(userLikes.map((like) => like.resourceId));
 
+	const initialResources = resources.map((resource) => ({
+		...resource,
+		isFavorited: likedResourceIds.has(resource._id),
+	}));
+
 	return (
 		<section className="container mx-auto px-4 py-24">
-			<div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-				{resources.map((resource) => (
-					<ResourceCard
-						key={resource._id}
-						resource={resource}
-						isFavorited={likedResourceIds.has(resource._id)}
-					/>
-				))}
-			</div>
+			<InfiniteResourcesGrid initialResources={initialResources} />
 		</section>
 	);
 }
