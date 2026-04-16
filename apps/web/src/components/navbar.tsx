@@ -43,7 +43,7 @@ function SearchInput() {
 	};
 
 	return (
-		<div className="ml-4 flex flex-1 justify-center">
+		<div className="ml-2 sm:ml-4 flex flex-1">
 			<div className="relative w-full max-w-md">
 				<span className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-muted-foreground">
 					<svg
@@ -74,9 +74,9 @@ function SearchInput() {
 export default function Header({ categories }: { categories: any[] }) {
 	return (
 		<header className="sticky top-0 z-50 w-full border-border/60 border-b bg-background/80 backdrop-blur">
-			<div className="mx-auto flex h-14 max-w-full items-center justify-between gap-3 px-8">
-				<div className="flex min-w-0 items-center gap-3">
-					<Link href="/" className="group flex items-center">
+			<div className="mx-auto flex h-14 max-w-full items-center justify-between gap-2 px-2 sm:gap-3 sm:px-8">
+				<div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3">
+					<Link href="/" className="group flex shrink-0 items-center">
 						<span className="grid h-9 w-9 place-items-center">
 							<Image
 								src="/logo.png"
@@ -98,11 +98,11 @@ export default function Header({ categories }: { categories: any[] }) {
 					</React.Suspense>
 				</div>
 
-				<div className="flex items-center gap-3">
+				<div className="flex items-center gap-1.5 sm:gap-3">
 					<Link href="/favorites" aria-label="Favorites">
 						<svg
 							viewBox="0 0 24 24"
-							className="mr-2 h-4 w-4 transition-colors duration-300 hover:stroke-red-500"
+							className="mr-1 sm:mr-2 h-4 w-4 transition-colors duration-300 hover:stroke-red-500"
 							fill="none"
 							stroke="currentColor"
 							strokeWidth="2"
@@ -113,7 +113,7 @@ export default function Header({ categories }: { categories: any[] }) {
 
 					<AnimatedThemeToggler className="cursor-pointer transition-transform duration-500 hover:rotate-360" />
 
-					<Separator orientation="vertical" className="!h-6 mx-3" />
+					<Separator orientation="vertical" className="h-6! mx-1 sm:mx-3" />
 
 					<SubmitResourceModal categories={categories} />
 
