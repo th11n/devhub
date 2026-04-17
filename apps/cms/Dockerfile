@@ -1,4 +1,4 @@
-FROM node:22.12.0-slim AS base
+FROM oven/bun:latest AS base
 
 # --- STEP 1: PRUNER ---
 FROM base AS pruner
@@ -25,7 +25,7 @@ RUN bunx turbo build --filter=cms
 # --- STEP 4: RUNNER ---
 # Sanity Studio builds to a static folder, so we can use a simple static server or bun to serve it.
 # Usually Sanity 'start' command runs a server.
-FROM node:22.12.0-slim AS runner
+FROM oven/bun:latest AS runner
 WORKDIR /app
 
 COPY --from=builder /app/apps/cms/dist ./dist
