@@ -25,8 +25,8 @@ RUN bun install
 FROM base AS builder
 WORKDIR /app
 
+COPY --from=installer /app ./
 COPY . .
-COPY --from=installer /app/node_modules ./node_modules
 
 RUN bunx turbo build --filter=cms
 
@@ -35,10 +35,10 @@ FROM node:22.12.0-slim AS runner
 WORKDIR /app
 RUN npm install -g bun
 
-COPY --from=builder /app/apps/cms/dist ./dist
-COPY --from=builder /app/apps/cms/package.json ./package.json
-COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app ./
+
+WORKDIR /app/apps/cms
 
 EXPOSE 3333
 
-CMD ["bun", "run", "start", "--", "--host=0.0.0.0"]
+CMD ["bun", "run", "start", "--host", "0.0.0.0"]
