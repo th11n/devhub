@@ -4,11 +4,7 @@ FROM oven/bun:1.2.15-slim AS base
 FROM base AS installer
 WORKDIR /app
 
-# Copy root config and lockfile
 COPY package.json bun.lock turbo.json ./
-
-# Copy all package.json files to allow bun install to work with workspaces
-# We use a trick to copy only package.json files to keep the layer cacheable
 COPY apps/web/package.json ./apps/web/
 COPY apps/server/package.json ./apps/server/
 COPY apps/cms/package.json ./apps/cms/
@@ -51,30 +47,28 @@ ENV NEXT_PUBLIC_SERVER_URL=$NEXT_PUBLIC_SERVER_URL \
     GOOGLE_CLIENT_SECRET=$GOOGLE_CLIENT_SECRET \
     NODE_ENV=production
 
-# Copy all source
 COPY . .
-# Copy node_modules from installer
 COPY --from=installer /app/node_modules ./node_modules
 
 RUN bunx turbo build --filter=web
 
 # --- STEP 3: RUNNER ---
-FROM oven/bun:1.2.15-slim AS runner
+FROM node:22-slim AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
+ENV PORT=3001
+ENV HOSTNAME=0.0.0.0
 
-RUN addgroup --system --gid 1001 bun-group
-RUN adduser --system --uid 1001 bun-user
-USER bun-user
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
 
-COPY --from=builder /app/apps/web/public ./apps/web/public
-COPY --from=builder --chown=bun-user:bun-group /app/apps/web/.next/standalone ./
-COPY --from=builder --chown=bun-user:bun-group /app/apps/web/.next/static ./apps/web/.next/static
+COPY --from=builder --chown=nextjs:nodejs /app/apps/web/public ./apps/web/public
+COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/static ./apps/web/.next/static
+
+USER nextjs
 
 EXPOSE 3001
 
-ENV PORT=3001
-ENV HOSTNAME="0.0.0.0"
-
-CMD ["bun", "apps/web/server.js"]
+CMD ["node", "server.js"]
