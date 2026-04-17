@@ -9,7 +9,7 @@ FROM base AS installer
 WORKDIR /app
 
 COPY --from=pruner /app/out/json/ .
-RUN bun install
+RUN bun install --frozen-lockfile
 
 FROM base AS builder
 WORKDIR /app
