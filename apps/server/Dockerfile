@@ -3,9 +3,8 @@ FROM oven/bun:1.1.34 AS base
 # --- STEP 1: PRUNER ---
 FROM base AS pruner
 WORKDIR /app
-RUN bun install -g turbo
 COPY . .
-RUN turbo prune server --docker
+RUN bunx turbo prune server --docker
 
 # --- STEP 2: INSTALLER ---
 FROM base AS installer
