@@ -19,7 +19,8 @@ WORKDIR /app
 
 COPY --from=pruner /app/out/full/ .
 COPY --from=installer /app/node_modules ./node_modules
-RUN bun run build --filter=cms
+COPY --from=installer /app/package.json ./package.json
+RUN bunx turbo build --filter=cms
 
 # --- STEP 4: RUNNER ---
 # Sanity Studio builds to a static folder, so we can use a simple static server or bun to serve it.

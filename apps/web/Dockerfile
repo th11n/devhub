@@ -37,7 +37,7 @@ COPY --from=pruner /app/out/full/ .
 COPY --from=installer /app/node_modules ./node_modules
 COPY --from=installer /app/package.json ./package.json
 
-RUN bun run build --filter=web
+RUN bunx turbo build --filter=web
 
 # --- STEP 4: RUNNER ---
 FROM oven/bun:1.2.4-slim AS runner
