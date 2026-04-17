@@ -22,12 +22,12 @@
 		"elysia": "^1.4.21",
 		"puppeteer": "^24.37.5",
 		"sharp": "^0.34.5",
-		"zod": "catalog:"
+		"zod": "catalog:",
+		"tsdown": "^0.16.5"
 	},
 	"devDependencies": {
 		"@devhub/config": "workspace:*",
 		"@types/bun": "catalog:",
-		"tsdown": "^0.16.5",
 		"typescript": "catalog:"
 	}
 }
