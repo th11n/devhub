@@ -48,12 +48,12 @@ services:
       retries: 5
     restart: unless-stopped
 
-  # buildujemy obraz raz (web)
+  # Web app (Next.js)
   web:
-    image: devhub:latest
+    image: devhub-web:latest
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: apps/web/Dockerfile
       args:
         NEXT_PUBLIC_SERVER_URL: ${NEXT_PUBLIC_SERVER_URL}
         DATABASE_URL: ${DATABASE_URL}
@@ -61,10 +61,6 @@ services:
         BETTER_AUTH_URL: ${BETTER_AUTH_URL}
         CORS_ORIGIN: ${CORS_ORIGIN}
         REDIS_URL: ${REDIS_URL}
-        HOST: 0.0.0.0
-        PORT: 3001
-    command: sh -c "HOST=0.0.0.0 PORT=3001 bun run start"
-    working_dir: /app/apps/web
     ports:
       - "3001:3001"
     env_file:
@@ -73,10 +69,12 @@ services:
       - server
     restart: unless-stopped
 
+  # API Server (Bun + Puppeteer)
   server:
-    image: devhub:latest
-    command: bun run dist/index.mjs
-    working_dir: /app/apps/server
+    image: devhub-server:latest
+    build:
+      context: .
+      dockerfile: apps/server/Dockerfile
     ports:
       - "3000:3000"
     env_file:
@@ -90,10 +88,12 @@ services:
         condition: service_healthy
     restart: unless-stopped
 
+  # Queue Worker (Bun + Puppeteer)
   queue-worker:
-    image: devhub:latest
-    command: bun run src/index.ts
-    working_dir: /app/apps/queue-worker
+    image: devhub-queue-worker:latest
+    build:
+      context: .
+      dockerfile: apps/queue-worker/Dockerfile
     env_file:
       - .env
     depends_on:
@@ -105,10 +105,12 @@ services:
         condition: service_healthy
     restart: unless-stopped
 
+  # Discord Bot (Bun)
   bot:
-    image: devhub:latest
-    command: bun run src/index.ts
-    working_dir: /app/apps/bot
+    image: devhub-bot:latest
+    build:
+      context: .
+      dockerfile: apps/bot/Dockerfile
     env_file:
       - .env
     depends_on:
@@ -119,10 +121,12 @@ services:
       - "8787:3000"
     restart: unless-stopped
 
+  # CMS (Sanity Studio)
   cms:
-    image: devhub:latest
-    command: bun run start -- --host=0.0.0.0
-    working_dir: /app/apps/cms
+    image: devhub-cms:latest
+    build:
+      context: .
+      dockerfile: apps/cms/Dockerfile
     ports:
       - "3333:3333"
     env_file:
