@@ -18,7 +18,7 @@ COPY packages/queue/package.json ./packages/queue/
 COPY packages/redis/package.json ./packages/redis/
 COPY packages/ui/package.json ./packages/ui/
 
-RUN bun install
+RUN bun install --frozen-lockfile
 
 # --- STEP 2: BUILDER ---
 FROM base AS builder
@@ -57,15 +57,15 @@ FROM node:22-slim AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
-ENV PORT=3001
 ENV HOSTNAME=0.0.0.0
+ENV PORT=3001
 
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nextjs
+RUN groupadd --system --gid 1001 nodejs \
+    && useradd --system --uid 1001 --gid 1001 nextjs
 
-COPY --from=builder --chown=nextjs:nodejs /app/apps/web/public ./apps/web/public
 COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/static ./apps/web/.next/static
+COPY --from=builder --chown=nextjs:nodejs /app/apps/web/public ./apps/web/public
 
 USER nextjs
 
