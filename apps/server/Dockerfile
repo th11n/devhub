@@ -5,12 +5,6 @@ WORKDIR /app
 COPY . .
 RUN bunx turbo prune server --docker
 
-FROM base AS installer
-WORKDIR /app
-
-COPY --from=pruner /app/out/json/ .
-RUN bun install --frozen-lockfile
-
 FROM base AS builder
 WORKDIR /app
 
@@ -50,13 +44,12 @@ ENV DATABASE_URL=$DATABASE_URL \
     RABBITMQ_URL=$RABBITMQ_URL \
     RABBITMQ_QUEUE=$RABBITMQ_QUEUE \
     CORS_ORIGIN=$CORS_ORIGIN \
-    NEXT_PUBLIC_SERVER_URL=$NEXT_PUBLIC_SERVER_URL \
-    NODE_ENV=production
+    NEXT_PUBLIC_SERVER_URL=$NEXT_PUBLIC_SERVER_URL
 
 COPY --from=pruner /app/out/full/ .
-COPY --from=installer /app/node_modules ./node_modules
-COPY --from=installer /app/package.json ./package.json
+COPY --from=pruner /app/out/json/ .
 
+RUN bun install
 RUN bunx turbo build --filter=server
 
 FROM oven/bun:latest AS runner
@@ -91,7 +84,7 @@ ENV NODE_ENV=production \
 
 COPY --from=builder /app/apps/server/dist ./dist
 COPY --from=builder /app/apps/server/package.json ./package.json
-COPY --from=installer /app/node_modules ./node_modules
+COPY --from=builder /app/node_modules ./node_modules
 
 EXPOSE 3000
 
