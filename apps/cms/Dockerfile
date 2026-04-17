@@ -1,4 +1,4 @@
-FROM oven/bun:1.1.34-slim AS base
+FROM oven/bun:1.2.4-slim AS base
 
 # --- STEP 1: PRUNER ---
 FROM base AS pruner
@@ -11,8 +11,7 @@ FROM base AS installer
 WORKDIR /app
 
 COPY --from=pruner /app/out/json/ .
-COPY --from=pruner /app/out/bun.lock /app/bun.lock
-RUN bun install --frozen-lockfile
+RUN bun install
 
 # --- STEP 3: BUILDER ---
 FROM base AS builder
@@ -25,7 +24,7 @@ RUN bun run build --filter=cms
 # --- STEP 4: RUNNER ---
 # Sanity Studio builds to a static folder, so we can use a simple static server or bun to serve it.
 # Usually Sanity 'start' command runs a server.
-FROM oven/bun:1.1.34-slim AS runner
+FROM oven/bun:1.2.4-slim AS runner
 WORKDIR /app
 
 COPY --from=builder /app/apps/cms/dist ./dist

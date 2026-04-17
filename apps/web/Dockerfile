@@ -1,4 +1,4 @@
-FROM oven/bun:1.1.34-slim AS base
+FROM oven/bun:1.2.4-slim AS base
 
 # --- STEP 1: PRUNER ---
 FROM base AS pruner
@@ -12,8 +12,7 @@ WORKDIR /app
 
 # First copy the pruned package.json and lockfile
 COPY --from=pruner /app/out/json/ .
-COPY --from=pruner /app/out/bun.lock /app/bun.lock
-RUN bun install --frozen-lockfile
+RUN bun install
 
 # --- STEP 3: BUILDER ---
 FROM base AS builder
@@ -41,7 +40,7 @@ COPY --from=installer /app/package.json ./package.json
 RUN bun run build --filter=web
 
 # --- STEP 4: RUNNER ---
-FROM oven/bun:1.1.34-slim AS runner
+FROM oven/bun:1.2.4-slim AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
