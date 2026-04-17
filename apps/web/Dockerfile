@@ -1,20 +1,15 @@
 FROM oven/bun:1.2.4-slim AS base
 
-# --- STEP 1: PRUNER ---
 FROM base AS pruner
 WORKDIR /app
 COPY . .
 RUN bunx turbo prune web --docker
 
-# --- STEP 2: INSTALLER ---
 FROM base AS installer
 WORKDIR /app
-
-# First copy the pruned package.json and lockfile
 COPY --from=pruner /app/out/json/ .
 RUN bun install
 
-# --- STEP 3: BUILDER ---
 FROM base AS builder
 WORKDIR /app
 
@@ -24,6 +19,10 @@ ARG BETTER_AUTH_SECRET
 ARG BETTER_AUTH_URL
 ARG CORS_ORIGIN
 ARG REDIS_URL
+ARG GITHUB_CLIENT_ID
+ARG GITHUB_CLIENT_SECRET
+ARG GOOGLE_CLIENT_ID
+ARG GOOGLE_CLIENT_SECRET
 
 ENV NEXT_PUBLIC_SERVER_URL=$NEXT_PUBLIC_SERVER_URL \
     DATABASE_URL=$DATABASE_URL \
@@ -31,6 +30,10 @@ ENV NEXT_PUBLIC_SERVER_URL=$NEXT_PUBLIC_SERVER_URL \
     BETTER_AUTH_URL=$BETTER_AUTH_URL \
     CORS_ORIGIN=$CORS_ORIGIN \
     REDIS_URL=$REDIS_URL \
+    GITHUB_CLIENT_ID=$GITHUB_CLIENT_ID \
+    GITHUB_CLIENT_SECRET=$GITHUB_CLIENT_SECRET \
+    GOOGLE_CLIENT_ID=$GOOGLE_CLIENT_ID \
+    GOOGLE_CLIENT_SECRET=$GOOGLE_CLIENT_SECRET \
     NODE_ENV=production
 
 COPY --from=pruner /app/out/full/ .
@@ -39,21 +42,16 @@ COPY --from=installer /app/package.json ./package.json
 
 RUN bunx turbo build --filter=web
 
-# --- STEP 4: RUNNER ---
 FROM oven/bun:1.2.4-slim AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
 
-# Don't run production as root
 RUN addgroup --system --gid 1001 bun-group
 RUN adduser --system --uid 1001 bun-user
 USER bun-user
 
 COPY --from=builder /app/apps/web/public ./apps/web/public
-
-# Automatically leverage output traces to reduce image size
-# https://nextjs.org/docs/advanced-features/output-file-tracing
 COPY --from=builder --chown=bun-user:bun-group /app/apps/web/.next/standalone ./
 COPY --from=builder --chown=bun-user:bun-group /app/apps/web/.next/static ./apps/web/.next/static
 
