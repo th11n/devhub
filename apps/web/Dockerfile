@@ -52,6 +52,18 @@ COPY --from=installer /app/node_modules ./node_modules
 
 RUN bunx turbo build --filter=web
 
+RUN echo "===== .next =====" \
+    && ls -la /app/apps/web/.next
+
+RUN echo "===== .next/standalone =====" \
+    && ls -la /app/apps/web/.next/standalone
+
+RUN echo "===== standalone files =====" \
+    && find /app/apps/web/.next/standalone -maxdepth 4 -type f | sort
+
+RUN echo "===== standalone server.js =====" \
+    && sed -n '1,120p' /app/apps/web/.next/standalone/server.js
+
 # --- STEP 3: RUNNER ---
 FROM node:22-slim AS runner
 WORKDIR /app
@@ -66,6 +78,15 @@ RUN groupadd --system --gid 1001 nodejs \
 COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/static ./apps/web/.next/static
 COPY --from=builder --chown=nextjs:nodejs /app/apps/web/public ./apps/web/public
+
+RUN echo "===== runner /app =====" \
+    && ls -la /app
+
+RUN echo "===== runner files =====" \
+    && find /app -maxdepth 4 -type f | sort
+
+RUN echo "===== runner server.js =====" \
+    && sed -n '1,120p' /app/server.js
 
 USER nextjs
 

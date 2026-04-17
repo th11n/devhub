@@ -1,5 +1,6 @@
 import "@devhub/env/web";
 import type { NextConfig } from "next";
+import path from "path";
 
 const nextConfig: NextConfig = {
 	output: "standalone",
@@ -9,6 +10,7 @@ const nextConfig: NextConfig = {
 	turbopack: {
 		root: __dirname,
 	},
+	outputFileTracingRoot: path.join(__dirname, "../../"),
 	images: {
 		remotePatterns: [
 			{
