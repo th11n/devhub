@@ -1,15 +1,30 @@
 FROM oven/bun:1.2.15-slim AS base
 
-FROM base AS pruner
-WORKDIR /app
-COPY . .
-RUN bunx turbo prune web --docker
-
+# --- STEP 1: INSTALLER ---
 FROM base AS installer
 WORKDIR /app
-COPY --from=pruner /app/out/json/ .
+
+# Copy root config and lockfile
+COPY package.json bun.lock turbo.json ./
+
+# Copy all package.json files to allow bun install to work with workspaces
+# We use a trick to copy only package.json files to keep the layer cacheable
+COPY apps/web/package.json ./apps/web/
+COPY apps/server/package.json ./apps/server/
+COPY apps/cms/package.json ./apps/cms/
+COPY apps/bot/package.json ./apps/bot/
+COPY apps/queue-worker/package.json ./apps/queue-worker/
+COPY packages/auth/package.json ./packages/auth/
+COPY packages/config/package.json ./packages/config/
+COPY packages/db/package.json ./packages/db/
+COPY packages/env/package.json ./packages/env/
+COPY packages/queue/package.json ./packages/queue/
+COPY packages/redis/package.json ./packages/redis/
+COPY packages/ui/package.json ./packages/ui/
+
 RUN bun install
 
+# --- STEP 2: BUILDER ---
 FROM base AS builder
 WORKDIR /app
 
@@ -36,12 +51,14 @@ ENV NEXT_PUBLIC_SERVER_URL=$NEXT_PUBLIC_SERVER_URL \
     GOOGLE_CLIENT_SECRET=$GOOGLE_CLIENT_SECRET \
     NODE_ENV=production
 
-COPY --from=pruner /app/out/full/ .
+# Copy all source
+COPY . .
+# Copy node_modules from installer
 COPY --from=installer /app/node_modules ./node_modules
-COPY --from=installer /app/package.json ./package.json
 
 RUN bunx turbo build --filter=web
 
+# --- STEP 3: RUNNER ---
 FROM oven/bun:1.2.15-slim AS runner
 WORKDIR /app
 

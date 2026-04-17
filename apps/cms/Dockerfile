@@ -1,41 +1,44 @@
 FROM node:22.12.0-slim AS base
-
 RUN npm install -g bun
 
-# --- STEP 1: PRUNER ---
-FROM base AS pruner
-WORKDIR /app
-COPY . .
-RUN bunx turbo prune cms --docker
-
-# --- STEP 2: INSTALLER ---
+# --- STEP 1: INSTALLER ---
 FROM base AS installer
 WORKDIR /app
 
-COPY --from=pruner /app/out/json/ .
+COPY package.json bun.lock turbo.json ./
+COPY apps/web/package.json ./apps/web/
+COPY apps/server/package.json ./apps/server/
+COPY apps/cms/package.json ./apps/cms/
+COPY apps/bot/package.json ./apps/bot/
+COPY apps/queue-worker/package.json ./apps/queue-worker/
+COPY packages/auth/package.json ./packages/auth/
+COPY packages/config/package.json ./packages/config/
+COPY packages/db/package.json ./packages/db/
+COPY packages/env/package.json ./packages/env/
+COPY packages/queue/package.json ./packages/queue/
+COPY packages/redis/package.json ./packages/redis/
+COPY packages/ui/package.json ./packages/ui/
+
 RUN bun install
 
-# --- STEP 3: BUILDER ---
+# --- STEP 2: BUILDER ---
 FROM base AS builder
 WORKDIR /app
 
-COPY --from=pruner /app/out/full/ .
+COPY . .
 COPY --from=installer /app/node_modules ./node_modules
-COPY --from=installer /app/package.json ./package.json
+
 RUN bunx turbo build --filter=cms
 
-# --- STEP 4: RUNNER ---
-# Sanity Studio builds to a static folder, so we can use a simple static server or bun to serve it.
-# Usually Sanity 'start' command runs a server.
+# --- STEP 3: RUNNER ---
 FROM node:22.12.0-slim AS runner
 WORKDIR /app
+RUN npm install -g bun
 
 COPY --from=builder /app/apps/cms/dist ./dist
 COPY --from=builder /app/apps/cms/package.json ./package.json
-COPY --from=installer /app/node_modules ./node_modules
+COPY --from=builder /app/node_modules ./node_modules
 
 EXPOSE 3333
 
-# Sanity Studio usually needs a way to serve the static files in production.
-# The 'sanity start' command in production typically serves the 'dist' folder.
 CMD ["bun", "run", "start", "--", "--host=0.0.0.0"]

@@ -1,13 +1,30 @@
 FROM oven/bun:latest AS base
 
-FROM base AS pruner
+# --- STEP 1: INSTALLER ---
+FROM base AS installer
 WORKDIR /app
-COPY . .
-RUN bunx turbo prune server --docker
 
+COPY package.json bun.lock turbo.json ./
+COPY apps/web/package.json ./apps/web/
+COPY apps/server/package.json ./apps/server/
+COPY apps/cms/package.json ./apps/cms/
+COPY apps/bot/package.json ./apps/bot/
+COPY apps/queue-worker/package.json ./apps/queue-worker/
+COPY packages/auth/package.json ./packages/auth/
+COPY packages/config/package.json ./packages/config/
+COPY packages/db/package.json ./packages/db/
+COPY packages/env/package.json ./packages/env/
+COPY packages/queue/package.json ./packages/queue/
+COPY packages/redis/package.json ./packages/redis/
+COPY packages/ui/package.json ./packages/ui/
+
+RUN bun install
+
+# --- STEP 2: BUILDER ---
 FROM base AS builder
 WORKDIR /app
 
+# Build args
 ARG DATABASE_URL
 ARG BETTER_AUTH_SECRET
 ARG BETTER_AUTH_URL
@@ -46,12 +63,12 @@ ENV DATABASE_URL=$DATABASE_URL \
     CORS_ORIGIN=$CORS_ORIGIN \
     NEXT_PUBLIC_SERVER_URL=$NEXT_PUBLIC_SERVER_URL
 
-COPY --from=pruner /app/out/full/ .
-COPY --from=pruner /app/out/json/ .
+COPY . .
+COPY --from=installer /app/node_modules ./node_modules
 
-RUN bun install
 RUN bunx turbo build --filter=server
 
+# --- STEP 3: RUNNER ---
 FROM oven/bun:latest AS runner
 
 RUN set -eux; \
