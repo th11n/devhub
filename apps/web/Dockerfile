@@ -1,4 +1,4 @@
-FROM oven/bun:1.2.4-slim AS base
+FROM oven/bun:1.2.15-slim AS base
 
 FROM base AS pruner
 WORKDIR /app
@@ -42,7 +42,7 @@ COPY --from=installer /app/package.json ./package.json
 
 RUN bunx turbo build --filter=web
 
-FROM oven/bun:1.2.4-slim AS runner
+FROM oven/bun:1.2.15-slim AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production

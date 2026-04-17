@@ -1,4 +1,4 @@
-FROM oven/bun:1.2.4 AS base
+FROM oven/bun:1.2.15 AS base
 
 FROM base AS pruner
 WORKDIR /app
@@ -59,7 +59,7 @@ COPY --from=installer /app/package.json ./package.json
 
 RUN bunx turbo build --filter=server
 
-FROM oven/bun:1.2.4 AS runner
+FROM oven/bun:1.2.15 AS runner
 
 RUN set -eux; \
   apt-get update; \

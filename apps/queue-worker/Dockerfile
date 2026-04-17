@@ -1,4 +1,4 @@
-FROM oven/bun:1.2.4 AS base
+FROM oven/bun:1.2.15 AS base
 
 # --- STEP 1: PRUNER ---
 FROM base AS pruner
@@ -14,7 +14,7 @@ COPY --from=pruner /app/out/json/ .
 RUN bun install
 
 # --- STEP 3: RUNNER ---
-FROM oven/bun:1.2.4 AS runner
+FROM oven/bun:1.2.15 AS runner
 
 # Install Chromium (ARM64 compatible, Debian-based)
 RUN set -eux; \
