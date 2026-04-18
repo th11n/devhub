@@ -43,6 +43,8 @@ RUN bunx turbo build --filter=web --concurrency=1
 
 RUN cp -rL /app/apps/web/.next/standalone /app/standalone_physical
 RUN find /app/standalone_physical -maxdepth 3
+RUN ls -R /app/apps/web/.next/standalone
+RUN ls -la /app/apps/web/.next/standalone
 
 # --- STEP 3: RUNNER ---
 FROM node:22-slim AS runner
