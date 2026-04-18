@@ -61,4 +61,4 @@ COPY --from=builder --chown=nextjs:nodejs /app/apps/web/public ./apps/web/public
 
 USER nextjs
 EXPOSE 3001
-CMD ["node", "server.js"]
+CMD ["node", "apps/web/server.js"]
