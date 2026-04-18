@@ -11,7 +11,6 @@ RUN turbo prune web --docker
 FROM base AS builder
 WORKDIR /app
 
-# Optymalizacja RAM i CPU
 ENV NODE_OPTIONS="--max-old-space-size=2048"
 ENV NEXT_TELEMETRY_DISABLED=1
 
@@ -40,10 +39,8 @@ ENV NEXT_PUBLIC_SERVER_URL=$NEXT_PUBLIC_SERVER_URL \
     SANITY_DATASET=$SANITY_DATASET \
     NODE_ENV=production
 
-# Budowanie z ograniczoną liczbą wątków, aby nie zabić VPS-a
 RUN bunx turbo build --filter=web --concurrency=1
 
-# Dereferencja symlinków (rozwiązuje błąd 'Cannot find module next')
 RUN cp -rL /app/apps/web/.next/standalone /app/standalone_physical
 
 # --- STEP 3: RUNNER ---
@@ -58,7 +55,6 @@ ENV NEXT_TELEMETRY_DISABLED=1
 RUN groupadd --system --gid 1001 nodejs \
     && useradd --system --uid 1001 --gid 1001 nextjs
 
-# Kopiujemy fizyczną wersję buildu
 COPY --from=builder --chown=nextjs:nodejs /app/standalone_physical ./
 COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/static ./apps/web/.next/static
 COPY --from=builder --chown=nextjs:nodejs /app/apps/web/public ./apps/web/public
