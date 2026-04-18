@@ -71,7 +71,7 @@ services:
 
   # API Server (Bun + Puppeteer)
   server:
-    image: ghcr.io/th11n/devhub-server:latest
+    image: ghcr.io/th11n/devhub-server@sha256:3711f86c634269d4bd8975b83ca7d7f5775c93f6543072cbfdb6ade4b4c84ff2
     # build:
     #   context: .
     #   dockerfile: apps/server/Dockerfile
