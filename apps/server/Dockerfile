@@ -1,7 +1,4 @@
-FROM oven/bun:latest AS base
-
-# --- STEP 1: BUILDER ---
-FROM base AS builder
+FROM oven/bun:1.3.12 AS builder
 WORKDIR /app
 
 ARG DATABASE_URL
@@ -44,5 +41,18 @@ ENV DATABASE_URL=$DATABASE_URL \
 
 COPY . .
 
-RUN bun install
+RUN bun install --frozen-lockfile
 RUN bunx turbo build --filter=server
+
+FROM oven/bun:1.3.12 AS runner
+WORKDIR /app
+
+ENV NODE_ENV=production
+ENV PORT=3000
+
+COPY --from=builder /app/apps/server/dist ./apps/server/dist
+COPY --from=builder /app/apps/server/package.json ./apps/server/package.json
+
+EXPOSE 3000
+
+CMD ["bun", "apps/server/dist/index.mjs"]

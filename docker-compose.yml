@@ -50,7 +50,7 @@ services:
 
   # Web app (Next.js)
   web:
-    image: ghcr.io/th11n/devhub-web:latest
+    image: ghcr.io/th11n/devhub-web@sha256:224f844c190acaa0df6eecc4435a5084db796574300b7bcf9d80c3456babf2be
     # build:
     #   context: .
     #   dockerfile: apps/web/Dockerfile
