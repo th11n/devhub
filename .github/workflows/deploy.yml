@@ -32,6 +32,9 @@ jobs:
           - app: cms
             dockerfile: apps/cms/Dockerfile
             image_name: cms
+          - app: migrator
+            dockerfile: packages/db/Dockerfile
+            image_name: migrator
 
     steps:
       - name: Checkout repository

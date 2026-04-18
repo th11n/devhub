@@ -48,6 +48,19 @@ services:
       retries: 5
     restart: unless-stopped
 
+  # Database Migrator (Drizzle Push)
+  db-migrator:
+    image: ghcr.io/th11n/devhub-migrator:latest
+    env_file: .env
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: on-failure
+    deploy:
+      restart_policy:
+        condition: on-failure
+        max_attempts: 3
+
   # Web app (Next.js)
   web:
     image: ghcr.io/th11n/devhub-web@sha256:224f844c190acaa0df6eecc4435a5084db796574300b7bcf9d80c3456babf2be
