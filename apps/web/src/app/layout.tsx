@@ -42,6 +42,14 @@ export const metadata: Metadata = {
 	applicationName: "Devhub",
 	category: "technology",
 
+	icons: {
+		icon: [
+			{ url: "/favicon.ico" }
+		],
+		apple: [{ url: "/apple-touch-icon.png", sizes: "180x180" }],
+		shortcut: ["/favicon.ico"],
+	},
+
 	openGraph: {
 		title: "Devhub — High Quality Curated Resources",
 		description:
