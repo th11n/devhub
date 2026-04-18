@@ -42,6 +42,7 @@ ENV NEXT_PUBLIC_SERVER_URL=$NEXT_PUBLIC_SERVER_URL \
 RUN bunx turbo build --filter=web --concurrency=1
 
 RUN cp -rL /app/apps/web/.next/standalone /app/standalone_physical
+RUN find /app/standalone_physical -maxdepth 3
 
 # --- STEP 3: RUNNER ---
 FROM node:22-slim AS runner
@@ -61,4 +62,6 @@ COPY --from=builder --chown=nextjs:nodejs /app/apps/web/public ./apps/web/public
 
 USER nextjs
 EXPOSE 3001
-CMD ["node", "apps/web/server.js"]
+
+# Debug: List files and then start
+CMD ls -R /app/apps/web && node apps/web/server.js
