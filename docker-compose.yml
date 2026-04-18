@@ -51,6 +51,7 @@ services:
   # Web app (Next.js)
   web:
     image: ghcr.io/th11n/devhub-web:latest
+    command: node server.js
     # build:
     #   context: .
     #   dockerfile: apps/web/Dockerfile

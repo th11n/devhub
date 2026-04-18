@@ -65,5 +65,7 @@ COPY --from=builder --chown=nextjs:nodejs /app/apps/web/public ./apps/web/public
 USER nextjs
 EXPOSE 3001
 
-# Debug: List files and then start
-CMD ls -R /app/apps/web && node apps/web/server.js
+# Create a bridge file in case something calls 'node server.js' from the root
+RUN echo "require('./apps/web/server.js')" > server.js
+
+CMD ["node", "apps/web/server.js"]
