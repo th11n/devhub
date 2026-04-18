@@ -41,7 +41,7 @@ ENV DATABASE_URL=$DATABASE_URL \
 
 COPY . .
 
-RUN bun install --frozen-lockfile
+RUN bun install
 RUN bunx turbo build --filter=server
 
 FROM oven/bun:1.3.12 AS runner
