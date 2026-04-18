@@ -50,17 +50,17 @@ services:
 
   # Web app (Next.js)
   web:
-    image: devhub-web:latest
-    build:
-      context: .
-      dockerfile: apps/web/Dockerfile
-      args:
-        NEXT_PUBLIC_SERVER_URL: ${NEXT_PUBLIC_SERVER_URL}
-        DATABASE_URL: ${DATABASE_URL}
-        BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET}
-        BETTER_AUTH_URL: ${BETTER_AUTH_URL}
-        CORS_ORIGIN: ${CORS_ORIGIN}
-        REDIS_URL: ${REDIS_URL}
+    image: ghcr.io/th11n/devhub-web:latest
+    # build:
+    #   context: .
+    #   dockerfile: apps/web/Dockerfile
+    #   args:
+    #     NEXT_PUBLIC_SERVER_URL: ${NEXT_PUBLIC_SERVER_URL}
+    #     DATABASE_URL: ${DATABASE_URL}
+    #     BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET}
+    #     BETTER_AUTH_URL: ${BETTER_AUTH_URL}
+    #     CORS_ORIGIN: ${CORS_ORIGIN}
+    #     REDIS_URL: ${REDIS_URL}
     ports:
       - "3001:3001"
     env_file:
@@ -71,10 +71,10 @@ services:
 
   # API Server (Bun + Puppeteer)
   server:
-    image: devhub-server:latest
-    build:
-      context: .
-      dockerfile: apps/server/Dockerfile
+    image: ghcr.io/th11n/devhub-server:latest
+    # build:
+    #   context: .
+    #   dockerfile: apps/server/Dockerfile
     ports:
       - "3000:3000"
     env_file:
@@ -90,10 +90,10 @@ services:
 
   # Queue Worker (Bun + Puppeteer)
   queue-worker:
-    image: devhub-queue-worker:latest
-    build:
-      context: .
-      dockerfile: apps/queue-worker/Dockerfile
+    image: ghcr.io/th11n/devhub-queue-worker:latest
+    # build:
+    #   context: .
+    #   dockerfile: apps/queue-worker/Dockerfile
     env_file:
       - .env
     depends_on:
@@ -107,10 +107,10 @@ services:
 
   # Discord Bot (Bun)
   bot:
-    image: devhub-bot:latest
-    build:
-      context: .
-      dockerfile: apps/bot/Dockerfile
+    image: ghcr.io/th11n/devhub-bot:latest
+    # build:
+    #   context: .
+    #   dockerfile: apps/bot/Dockerfile
     env_file:
       - .env
     depends_on:
@@ -123,10 +123,10 @@ services:
 
   # CMS (Sanity Studio)
   cms:
-    image: devhub-cms:latest
-    build:
-      context: .
-      dockerfile: apps/cms/Dockerfile
+    image: ghcr.io/th11n/devhub-cms:latest
+    # build:
+    #   context: .
+    #   dockerfile: apps/cms/Dockerfile
     ports:
       - "3333:3333"
     env_file:

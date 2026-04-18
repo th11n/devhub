@@ -1,0 +1,76 @@
+name: CI/CD - Build & Deploy
+
+on:
+  push:
+    branches: [ "main" ]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME_PREFIX: ${{ github.repository_owner }}/${{ github.event.repository.name }}
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      matrix:
+        include:
+          - app: web
+            dockerfile: apps/web/Dockerfile
+            image_name: web
+          - app: server
+            dockerfile: apps/server/Dockerfile
+            image_name: server
+          - app: queue-worker
+            dockerfile: apps/queue-worker/Dockerfile
+            image_name: queue-worker
+          - app: bot
+            dockerfile: apps/bot/Dockerfile
+            image_name: bot
+          - app: cms
+            dockerfile: apps/cms/Dockerfile
+            image_name: cms
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ${{ matrix.dockerfile }}
+          push: true
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_PREFIX }}-${{ matrix.image_name }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            DATABASE_URL=${{ secrets.DATABASE_URL }}
+            BETTER_AUTH_SECRET=${{ secrets.BETTER_AUTH_SECRET }}
+            BETTER_AUTH_URL=${{ secrets.BETTER_AUTH_URL }}
+            NEXT_PUBLIC_SERVER_URL=${{ secrets.NEXT_PUBLIC_SERVER_URL }}
+            REDIS_URL=${{ secrets.REDIS_URL }}
+            CORS_ORIGIN=${{ secrets.CORS_ORIGIN }}
+            SANITY_PROJECT_ID=${{ secrets.SANITY_PROJECT_ID }}
+            SANITY_DATASET=${{ secrets.SANITY_DATASET }}
+            RABBITMQ_URL=${{ secrets.RABBITMQ_URL }}
+
+  deploy:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Coolify Deploy Webhook
+        run: |
+          curl -X GET "${{ secrets.COOLIFY_WEBHOOK }}"
