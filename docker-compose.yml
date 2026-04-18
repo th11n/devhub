@@ -63,7 +63,7 @@ services:
 
   # Web app (Next.js)
   web:
-    image: ghcr.io/th11n/devhub-web@sha256:224f844c190acaa0df6eecc4435a5084db796574300b7bcf9d80c3456babf2be
+    image: ghcr.io/th11n/devhub-web@sha256:ab941c95691bda2e2a3f4c8aa1873ee0e54f4c56691317f4137e948babdd444f
     # build:
     #   context: .
     #   dockerfile: apps/web/Dockerfile
@@ -84,7 +84,7 @@ services:
 
   # API Server (Bun + Puppeteer)
   server:
-    image: ghcr.io/th11n/devhub-server@sha256:3711f86c634269d4bd8975b83ca7d7f5775c93f6543072cbfdb6ade4b4c84ff2
+    image: ghcr.io/th11n/devhub-server@sha256:fb36cdb452c8964a3299acdd9399dd6d5ec55622d69dd6b724ef89339d5ae00a
     # build:
     #   context: .
     #   dockerfile: apps/server/Dockerfile
