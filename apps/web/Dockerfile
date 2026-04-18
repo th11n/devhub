@@ -62,10 +62,10 @@ COPY --from=builder --chown=nextjs:nodejs /app/standalone_physical ./
 COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/static ./apps/web/.next/static
 COPY --from=builder --chown=nextjs:nodejs /app/apps/web/public ./apps/web/public
 
+# Create a bridge file in case something calls 'node server.js' from the root
+RUN echo "require('./apps/web/server.js')" > server.js && chown nextjs:nodejs server.js
+
 USER nextjs
 EXPOSE 3001
-
-# Create a bridge file in case something calls 'node server.js' from the root
-RUN echo "require('./apps/web/server.js')" > server.js
 
 CMD ["node", "apps/web/server.js"]
