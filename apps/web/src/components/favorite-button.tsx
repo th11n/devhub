@@ -37,7 +37,7 @@ export default function FavoriteButton({
 		setIsLoading(true);
 		const newState = !isFavorited;
 
-		const promise = fetch("http://localhost:3000/api/like", {
+		const promise = fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/like`, {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
