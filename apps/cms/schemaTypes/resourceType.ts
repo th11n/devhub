@@ -63,6 +63,7 @@ export const resourceType = defineType({
 					{ title: "Draft", value: "draft" },
 					{ title: "In Review", value: "review" },
 					{ title: "Public", value: "public" },
+					{ title: "Rejected", value: "rejected" },
 					{ title: "Archived", value: "archived" },
 				],
 				layout: "dropdown",
