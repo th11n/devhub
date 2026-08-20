@@ -1,3 +1,4 @@
+import { consumeJSON } from "@devhub/queue";
 import { cacheDelPattern } from "@devhub/redis";
 import type { Interaction, TextChannel } from "discord.js";
 import {
@@ -8,10 +9,15 @@ import {
 	EmbedBuilder,
 	GatewayIntentBits,
 	ModalBuilder,
+	StringSelectMenuBuilder,
 	TextInputBuilder,
 	TextInputStyle,
 } from "discord.js";
-import { patchResource } from "./sanity";
+import {
+	categoryReference,
+	getResourceCategories,
+	patchResource,
+} from "./sanity";
 import { store } from "./store";
 
 export const client = new Client({
@@ -22,14 +28,58 @@ const CID = {
 	approve: (messageId: string) => `resource:approve:${messageId}`,
 	reject: (messageId: string) => `resource:reject:${messageId}`,
 	edit: (messageId: string) => `resource:edit:${messageId}`,
+	category: (messageId: string) => `resource:category:${messageId}`,
 	modalSave: (messageId: string) => `resource:modalSave:${messageId}`,
 };
 
+type ReviewJob = {
+	id: string;
+	name?: string;
+	description?: string;
+	link?: string;
+	createdAt?: string;
+};
+
+const reviewCfg = {
+	url: process.env.RABBITMQ_URL || "amqp://dev:dev@localhost:5672",
+	queue: "resource_review",
+	prefetch: 5,
+	durable: true,
+};
+
+export async function startReviewConsumer() {
+	await consumeJSON<ReviewJob>(reviewCfg, async (resource) => {
+		await postReviewMessage(resource);
+		console.log(`[bot] posted Discord review card for ${resource.id}`);
+	});
+}
+
+function reviewActions(messageId: string) {
+	return new ActionRowBuilder<ButtonBuilder>().addComponents(
+		new ButtonBuilder()
+			.setCustomId(CID.approve(messageId))
+			.setLabel("Approve")
+			.setStyle(ButtonStyle.Success),
+		new ButtonBuilder()
+			.setCustomId(CID.edit(messageId))
+			.setLabel("Edit")
+			.setStyle(ButtonStyle.Primary),
+		new ButtonBuilder()
+			.setCustomId(CID.category(messageId))
+			.setLabel("Category")
+			.setStyle(ButtonStyle.Secondary),
+		new ButtonBuilder()
+			.setCustomId(CID.reject(messageId))
+			.setLabel("Reject")
+			.setStyle(ButtonStyle.Danger),
+	);
+}
+
 export async function postReviewMessage(resource: {
 	id: string;
-	title?: string;
+	name?: string;
 	description?: string;
-	url?: string;
+	link?: string;
 	logoUrl?: string;
 	submittedBy?: string;
 	createdAt?: string;
@@ -40,13 +90,26 @@ export async function postReviewMessage(resource: {
 	if (!channel || !channel.isTextBased() || !("send" in channel)) {
 		throw new Error("Discord channel not found or not text-based");
 	}
+	const textChannel = channel as TextChannel;
+	const existingMessageId = await store.messageIdForResource(resource.id);
+	if (existingMessageId) {
+		const existingMessage = await textChannel.messages
+			.fetch(existingMessageId)
+			.catch(() => null);
+		if (existingMessage) {
+			await existingMessage.edit({
+				components: [reviewActions(existingMessageId)],
+			});
+			return existingMessageId;
+		}
+	}
 
 	const embed = new EmbedBuilder()
-		.setTitle(resource.title || "New Resource")
+		.setTitle(resource.name || "New Resource")
 		.setDescription(resource.description || "No description")
 		.addFields(
-			resource.url
-				? { name: "URL", value: resource.url }
+			resource.link
+				? { name: "URL", value: resource.link }
 				: { name: "URL", value: "—" },
 			{ name: "Sanity ID", value: `\`${resource.id}\`` },
 			resource.submittedBy
@@ -58,26 +121,11 @@ export async function postReviewMessage(resource: {
 	if (resource.logoUrl) embed.setThumbnail(resource.logoUrl);
 
 	// najpierw wysyłamy placeholder, żeby znać message.id do customId
-	const msg = await (channel as TextChannel).send({ embeds: [embed] });
+	const msg = await textChannel.send({ embeds: [embed] });
 
 	await store.set(msg.id, resource);
 
-	const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
-		new ButtonBuilder()
-			.setCustomId(CID.approve(msg.id))
-			.setLabel("Approve")
-			.setStyle(ButtonStyle.Success),
-		new ButtonBuilder()
-			.setCustomId(CID.edit(msg.id))
-			.setLabel("Edit")
-			.setStyle(ButtonStyle.Primary),
-		new ButtonBuilder()
-			.setCustomId(CID.reject(msg.id))
-			.setLabel("Reject")
-			.setStyle(ButtonStyle.Danger),
-	);
-
-	await msg.edit({ components: [row] });
+	await msg.edit({ components: [reviewActions(msg.id)] });
 	return msg.id;
 }
 
@@ -143,7 +191,7 @@ client.on("interactionCreate", async (interaction: Interaction) => {
 					.setLabel("Title")
 					.setStyle(TextInputStyle.Short)
 					.setRequired(false)
-					.setValue(data.title || "");
+					.setValue(data.name || "");
 
 				const description = new TextInputBuilder()
 					.setCustomId("description")
@@ -157,7 +205,7 @@ client.on("interactionCreate", async (interaction: Interaction) => {
 					.setLabel("URL")
 					.setStyle(TextInputStyle.Short)
 					.setRequired(false)
-					.setValue(data.url || "");
+					.setValue(data.link || "");
 
 				const status = new TextInputBuilder()
 					.setCustomId("status")
@@ -176,6 +224,78 @@ client.on("interactionCreate", async (interaction: Interaction) => {
 				await interaction.showModal(modal);
 				return;
 			}
+
+			if (parsed.action === "category") {
+				const categories = await getResourceCategories();
+				if (!categories.length) {
+					await interaction.reply({
+						content: "No resource categories are available in Sanity.",
+						ephemeral: true,
+					});
+					return;
+				}
+
+				const select = new StringSelectMenuBuilder()
+					.setCustomId(CID.category(parsed.messageId))
+					.setPlaceholder("Choose a category")
+					.addOptions(
+						categories.slice(0, 25).map((category) => ({
+							label: category.name,
+							value: category.id,
+						})),
+					);
+
+				await interaction.reply({
+					content: "Choose the new category for this resource:",
+					components: [
+						new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
+							select,
+						),
+					],
+					ephemeral: true,
+				});
+				return;
+			}
+		}
+
+		if (interaction.isStringSelectMenu()) {
+			const parsed = parseCustomId(interaction.customId);
+			if (!parsed || parsed.action !== "category" || !parsed.messageId) return;
+			const messageId = parsed.messageId;
+			const data = await store.get(messageId);
+			const categoryId = interaction.values[0];
+			if (!data || !categoryId) {
+				await interaction.update({
+					content: "This review item expired. Open a new review card.",
+					components: [],
+				});
+				return;
+			}
+
+			const category = (await getResourceCategories()).find(
+				(item) => item.id === categoryId,
+			);
+			if (!category) {
+				await interaction.update({
+					content: "Category no longer exists.",
+					components: [],
+				});
+				return;
+			}
+
+			await patchResource(data.id, {
+				categories: categoryReference(categoryId),
+			});
+			await cacheDelPattern("*");
+			await store.set(messageId, {
+				...data,
+				categoryName: category.name,
+			});
+			await interaction.update({
+				content: `Category changed to **${category.name}**.`,
+				components: [],
+			});
+			return;
 		}
 
 		// MODAL SUBMIT
@@ -189,7 +309,8 @@ client.on("interactionCreate", async (interaction: Interaction) => {
 			)
 				return;
 
-			const messageId = parts[2]!;
+			const messageId = parts[2];
+			if (!messageId) return;
 			const data = await store.get(messageId);
 			if (!data) {
 				await interaction.reply({
@@ -199,11 +320,11 @@ client.on("interactionCreate", async (interaction: Interaction) => {
 				return;
 			}
 
-			const title = interaction.fields.getTextInputValue("title")?.trim();
+			const name = interaction.fields.getTextInputValue("title")?.trim();
 			const description = interaction.fields
 				.getTextInputValue("description")
 				?.trim();
-			const url = interaction.fields.getTextInputValue("url")?.trim();
+			const link = interaction.fields.getTextInputValue("url")?.trim();
 			const statusRaw = interaction.fields.getTextInputValue("status")?.trim();
 
 			const status =
@@ -217,9 +338,9 @@ client.on("interactionCreate", async (interaction: Interaction) => {
 
 			// patch sanity
 			await patchResource(data.id, {
-				title: title || undefined,
+				name: name || undefined,
 				description: description || undefined,
-				url: url || undefined,
+				link: link || undefined,
 				status,
 			});
 
@@ -228,25 +349,25 @@ client.on("interactionCreate", async (interaction: Interaction) => {
 			// update embed message on discord
 			const embed = interaction.message?.embeds[0];
 
-			let newEmbed;
+			let newEmbed: EmbedBuilder;
 			if (embed) {
-				newEmbed = EmbedBuilder.from(embed as any)
-					.setTitle(title || embed?.title || "Resource")
+				newEmbed = EmbedBuilder.from(embed)
+					.setTitle(name || embed?.title || "Resource")
 					.setDescription(
 						description || embed?.description || "No description",
 					);
 			} else {
 				newEmbed = new EmbedBuilder()
-					.setTitle(title || "Resource")
+					.setTitle(name || "Resource")
 					.setDescription(description || "No description");
 			}
 
 			// update store cache
 			await store.set(messageId, {
 				...data,
-				title: title || data.title,
+				name: name || data.name,
 				description: description || data.description,
-				url: url || data.url,
+				link: link || data.link,
 			});
 
 			if (interaction.message) {
