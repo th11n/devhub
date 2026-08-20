@@ -43,11 +43,14 @@ export const metadata: Metadata = {
 	category: "technology",
 
 	icons: {
-		icon: [
-			{ url: "/favicon.ico" }
-		],
+		icon: [{ url: "/favicon.ico" }],
 		apple: [{ url: "/apple-touch-icon.png", sizes: "180x180" }],
 		shortcut: ["/favicon.ico"],
+	},
+	appleWebApp: {
+		capable: true,
+		title: "Devhub",
+		statusBarStyle: "black-translucent",
 	},
 
 	openGraph: {
