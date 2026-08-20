@@ -25,7 +25,9 @@ export function getRedis() {
 
 	const url = process.env.REDIS_URL;
 	if (!url) {
-		throw new Error("REDIS_URL is missing. Set REDIS_URL=redis://redis:6379 (docker) or your provider URL.");
+		throw new Error(
+			"REDIS_URL is missing. Set REDIS_URL=redis://redis:6379 (docker) or your provider URL.",
+		);
 	}
 
 	redis = new Redis(url, {
@@ -75,4 +77,27 @@ export async function cacheDelPattern(pattern: string) {
 	stream.on("data", (keys: string[]) => {
 		if (keys.length) client.del(...keys);
 	});
+}
+
+/** Atomically increment a counter and give its first value a fixed lifetime. */
+export async function incrementWithExpiry(key: string, ttlSeconds: number) {
+	const client = getRedis();
+	if (!client) return 1;
+
+	return Number(
+		await client.eval(
+			"local count = redis.call('INCR', KEYS[1]); if count == 1 then redis.call('EXPIRE', KEYS[1], ARGV[1]); end; return count",
+			1,
+			key,
+			ttlSeconds,
+		),
+	);
+}
+
+/** Reserve a key for a finite period. Returns false when it was already reserved. */
+export async function reserveKey(key: string, ttlSeconds: number) {
+	const client = getRedis();
+	if (!client) return true;
+
+	return (await client.set(key, "1", "EX", ttlSeconds, "NX")) === "OK";
 }
