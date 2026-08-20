@@ -20,6 +20,7 @@ import { Link as LinkIcon, Tag } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { sileo } from "sileo";
 import z from "zod";
+import { type SubmissionSource, submitFromPwa } from "@/lib/submission-queue";
 
 interface Category {
 	_id: string;
@@ -29,9 +30,11 @@ interface Category {
 export default function SubmitResourceForm({
 	categories,
 	onSuccess,
+	source = "web",
 }: {
 	categories: Category[];
 	onSuccess?: () => void;
+	source?: Exclude<SubmissionSource, "shortcut">;
 }) {
 	const router = useRouter();
 
@@ -41,24 +44,31 @@ export default function SubmitResourceForm({
 			categoryId: categories[0]?._id || "",
 		},
 		onSubmit: async ({ value }) => {
-			const promise = fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/submit`, {
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
-				},
-				body: JSON.stringify(value),
-			}).then(async (res) => {
-				if (!res.ok) {
-					const error = await res.json();
-					throw new Error(error.message || "Failed to submit resource");
-				}
-				return res.json();
-			});
+			const promise =
+				source === "pwa"
+					? submitFromPwa(value.url, value.categoryId)
+					: fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/submit`, {
+							method: "POST",
+							headers: { "Content-Type": "application/json" },
+							body: JSON.stringify({ ...value, source }),
+						}).then(async (res) => {
+							if (!res.ok) {
+								const error = await res.json();
+								throw new Error(error.error || "Failed to submit resource");
+							}
+							return res.json();
+						});
 
 			sileo.promise(promise, {
 				loading: { title: "Submitting and enriching resource..." },
-				success: () => {
+				success: (result) => {
 					onSuccess?.();
+					if (source === "pwa" && result.state === "queued") {
+						return {
+							title: "Saved for later",
+							description: "Devhub will submit it when you are back online.",
+						};
+					}
 					router.refresh();
 					return {
 						title: "Resource submitted successfully!",
