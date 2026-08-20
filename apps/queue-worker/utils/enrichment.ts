@@ -1,7 +1,7 @@
 import { Buffer } from "node:buffer";
 import crypto from "node:crypto";
 import { cacheDelPattern } from "@devhub/redis";
-import puppeteer, { type Page } from "puppeteer";
+import puppeteer, { type Browser, type Page } from "puppeteer";
 import sharp from "sharp";
 import { sanityClient } from "../../server/src/sanity";
 
@@ -111,6 +111,29 @@ async function pickFaviconUrl(page: Page): Promise<string> {
     return href;
 }
 
+async function openResourcePage(browser: Browser, url: string) {
+    let lastError: unknown;
+
+    for (let attempt = 1; attempt <= 2; attempt++) {
+        const page = await browser.newPage();
+        await page.setViewport({ width: 1280, height: 720 });
+
+        try {
+            console.log(`Navigating to ${url} (attempt ${attempt}/2)...`);
+            await page.goto(url, { waitUntil: "domcontentloaded", timeout: 30000 });
+            await page.waitForNetworkIdle({ idleTime: 500, timeout: 5000 }).catch(() => {
+                // Many modern sites keep analytics connections open; rendering can continue.
+            });
+            return page;
+        } catch (error) {
+            lastError = error;
+            await page.close().catch(() => {});
+        }
+    }
+
+    throw lastError;
+}
+
 function slugify(input: string) {
     return input
         .toLowerCase()
@@ -121,25 +144,30 @@ function slugify(input: string) {
 }
 
 export async function enrichResource(url: string, categoryId: string) {
+    const existing = await sanityClient.fetch<string | null>(
+        '*[_type == "resource" && link == $url][0]._id',
+        { url },
+    );
+    if (existing) {
+        console.log(`Resource already exists in Sanity: ${existing}`);
+        return { _id: existing, duplicate: true };
+    }
+
     const browser = await puppeteer.launch({
         executablePath: process.env.PUPPETEER_EXECUTABLE_PATH,
         headless: true,
         args: [
-            "--headless=new",
             "--disable-gpu",
             "--disable-software-rasterizer",
             "--no-sandbox",
             "--disable-dev-shm-usage",
             "--disable-setuid-sandbox",
-            "--no-zygote",
-            "--single-process",
         ],
-    }); const page = await browser.newPage();
-    await page.setViewport({ width: 1280, height: 720 });
+    });
+    let page: Page | null = null;
 
     try {
-        console.log(`Navigating to ${url}...`);
-        await page.goto(url, { waitUntil: "networkidle2", timeout: 30000 });
+        page = await openResourcePage(browser, url);
 
         const title = await page.title();
 
@@ -236,12 +264,18 @@ export async function enrichResource(url: string, categoryId: string) {
         // Invalidate all sanity caches to refresh main feed
         await cacheDelPattern("sanity:*");
 
-        return result;
+        return {
+            id: result._id,
+            name: baseName,
+            description: description || undefined,
+            link: url,
+            createdAt: doc.publishedAt,
+        };
     } catch (err) {
         console.error(`[enrichment] Error enriching ${url}:`, err);
         throw err;
     } finally {
-        await page.close().catch(() => { });
-        await browser.close().catch(() => { });
+        await page?.close().catch(() => {});
+        await browser.close().catch(() => {});
     }
 }
