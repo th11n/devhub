@@ -4,9 +4,9 @@ import { postReviewMessage } from "./discord";
 type SanityWebhookPayload = {
 	_id: string;
 	_type?: string;
-	title?: string;
+	name?: string;
 	description?: string;
-	url?: string;
+	link?: string;
 	logoUrl?: string;
 	status?: string;
 	submittedBy?: string;
@@ -36,9 +36,9 @@ export function startWebhookServer() {
 
 			const body = req.body as SanityWebhookPayload;
 
-			// minimalna walidacja
-			if (!body?._id)
-				return res.status(400).json({ ok: false, error: "Missing _id" });
+			if (!body?._id || body._type !== "resource") {
+				return res.status(200).json({ ok: true, skipped: true });
+			}
 
 			// filtr: tylko rzeczy do review
 			if (body.status && body.status !== "review") {
@@ -49,9 +49,9 @@ export function startWebhookServer() {
 
 			await postReviewMessage({
 				id: body._id,
-				title: body.title,
+				name: body.name,
 				description: body.description,
-				url: body.url,
+				link: body.link,
 				logoUrl: body.logoUrl,
 				submittedBy: body.submittedBy,
 				createdAt: body._createdAt,
