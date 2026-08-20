@@ -1,6 +1,7 @@
 "use client";
 
 import { Toaster } from "sileo";
+import PwaManager from "./pwa-manager";
 import { ThemeProvider } from "./theme-provider";
 
 export default function Providers({ children }: { children: React.ReactNode }) {
@@ -11,6 +12,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
 			enableSystem
 			disableTransitionOnChange
 		>
+			<PwaManager />
 			{children}
 			<Toaster
 				position="bottom-right"
