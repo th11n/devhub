@@ -26,7 +26,7 @@ ENV NODE_ENV=production
 
 COPY --from=pruner /app/out/json/ ./
 COPY --from=pruner /app/out/bun.lock ./bun.lock
-RUN bun install --frozen-lockfile --production
+RUN bun install --frozen-lockfile --production --ignore-scripts
 COPY --from=pruner /app/out/full/ ./
 COPY --from=builder /app/apps/cms/dist ./apps/cms/dist
 
