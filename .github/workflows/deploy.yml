@@ -60,7 +60,9 @@ jobs:
           file: ${{ matrix.dockerfile }}
           push: true
           platforms: linux/amd64,linux/arm64
-          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_PREFIX }}-${{ matrix.image_name }}:latest
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_PREFIX }}-${{ matrix.image_name }}:${{ github.sha }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_PREFIX }}-${{ matrix.image_name }}:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
           build-args: |

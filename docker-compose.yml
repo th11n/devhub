@@ -67,7 +67,7 @@ services:
 
   # Database Migrator (Drizzle Push)
   db-migrator:
-    image: ghcr.io/th11n/devhub-migrator:latest
+    image: ghcr.io/th11n/devhub-migrator:${IMAGE_TAG:-latest}
     env_file: .env
     depends_on:
       db:
@@ -80,7 +80,7 @@ services:
 
   # Web app (Next.js)
   web:
-    image: ghcr.io/th11n/devhub-web@sha256:ab941c95691bda2e2a3f4c8aa1873ee0e54f4c56691317f4137e948babdd444f
+    image: ghcr.io/th11n/devhub-web:${IMAGE_TAG:-latest}
     # build:
     #   context: .
     #   dockerfile: apps/web/Dockerfile
@@ -101,7 +101,7 @@ services:
 
   # API Server (Bun + Puppeteer)
   server:
-    image: ghcr.io/th11n/devhub-server@sha256:fb36cdb452c8964a3299acdd9399dd6d5ec55622d69dd6b724ef89339d5ae00a
+    image: ghcr.io/th11n/devhub-server:${IMAGE_TAG:-latest}
     # build:
     #   context: .
     #   dockerfile: apps/server/Dockerfile
@@ -120,7 +120,7 @@ services:
 
   # Queue Worker (Bun + Puppeteer)
   queue-worker:
-    image: ghcr.io/th11n/devhub-queue-worker:latest
+    image: ghcr.io/th11n/devhub-queue-worker:${IMAGE_TAG:-latest}
     # build:
     #   context: .
     #   dockerfile: apps/queue-worker/Dockerfile
@@ -137,7 +137,7 @@ services:
 
   # Discord Bot (Bun)
   bot:
-    image: ghcr.io/th11n/devhub-bot:latest
+    image: ghcr.io/th11n/devhub-bot:${IMAGE_TAG:-latest}
     # build:
     #   context: .
     #   dockerfile: apps/bot/Dockerfile
@@ -153,7 +153,7 @@ services:
 
   # CMS (Sanity Studio)
   cms:
-    image: ghcr.io/th11n/devhub-cms:latest
+    image: ghcr.io/th11n/devhub-cms:${IMAGE_TAG:-latest}
     # build:
     #   context: .
     #   dockerfile: apps/cms/Dockerfile
