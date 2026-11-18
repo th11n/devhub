@@ -1,5 +1,6 @@
 FROM node:22.12.0-slim AS base
 RUN npm install --global bun
+ENV PATH="/root/.bun/bin:${PATH}"
 
 # --- STEP 1: PRUNER ---
 FROM base AS pruner
