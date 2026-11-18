@@ -4,7 +4,7 @@ FROM oven/bun:1.3.3 AS base
 FROM base AS installer
 WORKDIR /app
 
-COPY package.json bun.lock turbo.json ./
+COPY package.json turbo.json ./
 COPY apps/web/package.json ./apps/web/
 COPY apps/server/package.json ./apps/server/
 COPY apps/cms/package.json ./apps/cms/
