@@ -80,6 +80,17 @@ jobs:
     needs: build-and-push
     runs-on: ubuntu-latest
     steps:
+      - name: Update Coolify image tag
+        env:
+          COOLIFY_API_TOKEN: ${{ secrets.COOLIFY_API_TOKEN }}
+          COOLIFY_RESOURCE_UUID: ${{ secrets.COOLIFY_RESOURCE_UUID }}
+        run: |
+          curl --fail-with-body --silent --show-error \
+            --request PATCH \
+            --header "Authorization: Bearer ${COOLIFY_API_TOKEN}" \
+            --header "Content-Type: application/json" \
+            --data '{"IMAGE_TAG":"'"${GITHUB_SHA}"'"}' \
+            "${{ secrets.COOLIFY_API_URL }}/api/v1/applications/${COOLIFY_RESOURCE_UUID}/envs"
       - name: Trigger Coolify Deploy Webhook
         run: |
-          curl -X GET "${{ secrets.COOLIFY_WEBHOOK }}"
+          curl --fail-with-body --silent --show-error -X GET "${{ secrets.COOLIFY_WEBHOOK }}"

@@ -22,7 +22,7 @@ ENV PUPPETEER_SKIP_DOWNLOAD=true
 
 # Keep type packages and other development-only dependencies out of the
 # runtime image. Chromium is supplied by the OS below.
-RUN bun install --frozen-lockfile --production --ignore-scripts
+RUN bun install --production --ignore-scripts
 
 # --- STEP 2: RUNNER ---
 FROM oven/bun:1.3.3 AS runner
