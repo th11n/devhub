@@ -1,4 +1,5 @@
-FROM oven/bun:1.3.3-slim AS base
+FROM node:22.12.0-slim AS base
+RUN npm install --global bun
 
 # --- STEP 1: PRUNER ---
 FROM base AS pruner
@@ -16,7 +17,7 @@ COPY --from=pruner /app/out/bun.lock ./bun.lock
 RUN bun install --frozen-lockfile
 COPY --from=pruner /app/out/full/ ./
 
-RUN bunx turbo build --filter=cms
+RUN ./node_modules/.bin/turbo build --filter=cms
 
 # --- STEP 3: RUNNER ---
 FROM base AS runner
