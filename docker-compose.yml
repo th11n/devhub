@@ -1,9 +1,10 @@
 services:
   rabbitmq:
-    image: rabbitmq:3-management
-    ports:
-      - "5672:5672"
-      - "15672:15672"
+    # The application only uses AMQP. The management image enables an HTTP UI,
+    # metrics and extra Erlang processes which are unnecessary in production.
+    # Stay on 3.13 for this deployment so the existing RabbitMQ volume does
+    # not undergo a major-version migration during this resource hotfix.
+    image: rabbitmq:3.13.7-alpine
     environment:
       RABBITMQ_DEFAULT_USER: dev
       RABBITMQ_DEFAULT_PASS: dev
@@ -15,6 +16,15 @@ services:
       timeout: 5s
       retries: 30
     restart: unless-stopped
+    # Keep the broker from consuming a small Coolify host. RabbitMQ will apply
+    # backpressure instead of contributing to an OOM situation.
+    mem_limit: 256m
+    cpus: 0.50
+    logging:
+      driver: local
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   redis:
     image: redis:7-alpine
@@ -29,6 +39,13 @@ services:
       timeout: 3s
       retries: 30
     restart: unless-stopped
+    mem_limit: 128m
+    cpus: 0.25
+    logging:
+      driver: local
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   db:
     image: postgres:18

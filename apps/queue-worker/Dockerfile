@@ -1,4 +1,4 @@
-FROM oven/bun:1.2.15 AS base
+FROM oven/bun:1.3.3 AS base
 
 # --- STEP 1: INSTALLER ---
 FROM base AS installer
@@ -18,10 +18,14 @@ COPY packages/queue/package.json ./packages/queue/
 COPY packages/redis/package.json ./packages/redis/
 COPY packages/ui/package.json ./packages/ui/
 
-RUN bun install
+ENV PUPPETEER_SKIP_DOWNLOAD=true
+
+# Keep type packages and other development-only dependencies out of the
+# runtime image. Chromium is supplied by the OS below.
+RUN bun install --frozen-lockfile --production
 
 # --- STEP 2: RUNNER ---
-FROM oven/bun:1.2.15 AS runner
+FROM oven/bun:1.3.3 AS runner
 
 RUN set -eux; \
   apt-get update; \
@@ -47,22 +51,16 @@ RUN set -eux; \
 
 WORKDIR /app
 
-ARG RABBITMQ_URL
-ARG RABBITMQ_QUEUE
-ARG REDIS_URL
-ARG DATABASE_URL
-ARG DISCORD_TOKEN
-ARG DISCORD_APP_ID
-
-ENV RABBITMQ_URL=$RABBITMQ_URL \
-    RABBITMQ_QUEUE=$RABBITMQ_QUEUE \
-    REDIS_URL=$REDIS_URL \
-    DATABASE_URL=$DATABASE_URL \
-    DISCORD_TOKEN=$DISCORD_TOKEN \
-    DISCORD_APP_ID=$DISCORD_APP_ID
+ENV NODE_ENV=production \
+    PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
 
 COPY --from=installer /app/node_modules ./node_modules
-COPY . .
+# The worker needs only its source, its two shared packages and the small
+# Sanity client module. Do not copy the monorepo (or its build artefacts).
+COPY apps/queue-worker ./apps/queue-worker
+COPY packages/queue ./packages/queue
+COPY packages/redis ./packages/redis
+COPY apps/server/src/sanity.ts ./apps/server/src/sanity.ts
 
 WORKDIR /app/apps/queue-worker
 CMD ["bun", "run", "src/index.ts"]

@@ -1,33 +1,23 @@
-FROM oven/bun:1.2.15-slim AS base
+FROM oven/bun:1.3.3-slim AS base
 
-# --- STEP 1: INSTALLER ---
-FROM base AS installer
+# Produce a dependency-closed, bot-only workspace. This avoids shipping the
+# web app, CMS, worker and their node modules in the final image.
+FROM base AS pruner
 WORKDIR /app
-
-COPY package.json bun.lock turbo.json ./
-COPY apps/web/package.json ./apps/web/
-COPY apps/server/package.json ./apps/server/
-COPY apps/cms/package.json ./apps/cms/
-COPY apps/bot/package.json ./apps/bot/
-COPY apps/queue-worker/package.json ./apps/queue-worker/
-COPY packages/auth/package.json ./packages/auth/
-COPY packages/config/package.json ./packages/config/
-COPY packages/db/package.json ./packages/db/
-COPY packages/env/package.json ./packages/env/
-COPY packages/queue/package.json ./packages/queue/
-COPY packages/redis/package.json ./packages/redis/
-COPY packages/ui/package.json ./packages/ui/
-
-RUN bun install
+RUN bun add --global turbo
+COPY . .
+RUN turbo prune bot --docker
 
 # --- STEP 2: RUNNER ---
-FROM oven/bun:1.2.15-slim AS runner
+FROM base AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
 
-COPY --from=installer /app/node_modules ./node_modules
-COPY . .
+COPY --from=pruner /app/out/json/ ./
+COPY --from=pruner /app/out/bun.lock ./bun.lock
+RUN bun install --frozen-lockfile --production
+COPY --from=pruner /app/out/full/ ./
 
 WORKDIR /app/apps/bot
 CMD ["bun", "run", "src/index.ts"]

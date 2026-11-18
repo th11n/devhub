@@ -1,41 +1,34 @@
-FROM node:22.12.0-slim AS base
-RUN npm install -g bun
+FROM oven/bun:1.3.3-slim AS base
 
-# --- STEP 1: INSTALLER ---
-FROM base AS installer
+# --- STEP 1: PRUNER ---
+FROM base AS pruner
 WORKDIR /app
-
-COPY package.json bun.lock turbo.json ./
-COPY apps/web/package.json ./apps/web/
-COPY apps/server/package.json ./apps/server/
-COPY apps/cms/package.json ./apps/cms/
-COPY apps/bot/package.json ./apps/bot/
-COPY apps/queue-worker/package.json ./apps/queue-worker/
-COPY packages/auth/package.json ./packages/auth/
-COPY packages/config/package.json ./packages/config/
-COPY packages/db/package.json ./packages/db/
-COPY packages/env/package.json ./packages/env/
-COPY packages/queue/package.json ./packages/queue/
-COPY packages/redis/package.json ./packages/redis/
-COPY packages/ui/package.json ./packages/ui/
-
-RUN bun install
+RUN bun add --global turbo
+COPY . .
+RUN turbo prune cms --docker
 
 # --- STEP 2: BUILDER ---
 FROM base AS builder
 WORKDIR /app
 
-COPY --from=installer /app ./
-COPY . .
+COPY --from=pruner /app/out/json/ ./
+COPY --from=pruner /app/out/bun.lock ./bun.lock
+RUN bun install --frozen-lockfile
+COPY --from=pruner /app/out/full/ ./
 
 RUN bunx turbo build --filter=cms
 
 # --- STEP 3: RUNNER ---
-FROM node:22.12.0-slim AS runner
+FROM base AS runner
 WORKDIR /app
-RUN npm install -g bun
 
-COPY --from=builder /app ./
+ENV NODE_ENV=production
+
+COPY --from=pruner /app/out/json/ ./
+COPY --from=pruner /app/out/bun.lock ./bun.lock
+RUN bun install --frozen-lockfile --production
+COPY --from=pruner /app/out/full/ ./
+COPY --from=builder /app/apps/cms/dist ./apps/cms/dist
 
 WORKDIR /app/apps/cms
 
