@@ -54,7 +54,7 @@ WORKDIR /app
 ENV NODE_ENV=production \
     PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
 
-COPY --from=installer /app/node_modules ./node_modules
+COPY --from=installer /app/ ./
 # The worker needs only its source, its two shared packages and the small
 # Sanity client module. Do not copy the monorepo (or its build artefacts).
 COPY apps/queue-worker ./apps/queue-worker
