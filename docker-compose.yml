@@ -120,7 +120,7 @@ services:
 
   # Queue Worker (Bun + Puppeteer)
   queue-worker:
-    image: ghcr.io/th11n/devhub-queue-worker:4f151708c29033d849faf2d7a0c7228e0340da2c
+    image: ghcr.io/th11n/devhub-queue-worker:bbff0dbd53c701d241bbfe9feb6d563dccea9709
     # build:
     #   context: .
     #   dockerfile: apps/queue-worker/Dockerfile
